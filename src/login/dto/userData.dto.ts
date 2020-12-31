@@ -1,5 +1,4 @@
-import { IsNotEmpty, IsNumber, IsPositive, IsString } from "class-validator";
-import { Min } from "sequelize-typescript";
+import { IsNotEmpty, IsNumber, IsPositive, IsString, Min } from "class-validator";
 
 export class UserDataDto {
     @IsNumber()

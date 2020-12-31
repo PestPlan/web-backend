@@ -3,26 +3,39 @@ import { InjectModel } from '@nestjs/sequelize';
 import { SignDataDto } from './dto/signData.dto';
 import { User } from './model/user.model';
 import * as bcrypt from 'bcrypt';
-import { UserDataDto } from './dto/userData.dto';
+import { AuthService } from 'src/auth/auth.service';
+import { tokenDto } from 'src/auth/dto/token.dto';
 
 @Injectable()
 export class LoginService {
     constructor(
         @InjectModel(User)
         private userModel: typeof User,
+        private authService: AuthService,
     ) {}
     
-    async create(signUpData: SignDataDto) {
-        console.log(signUpData);
-        const { username, password } = signUpData;
-
-        // 같은 username이 존재하는지 확인한다.
+    /**
+     * existsUsername - User model에 같은 username이 존재하는지 확인한다.
+     * @returns Promise<User> - 존재할 경우
+     *          null - 존재하지 않을 경우
+     */
+    async existsUsername(username: string): Promise<User> {
         const isExist = await this.userModel.findOne({
             where: {
                 username,
             }
         });
-        if(isExist) {
+        return isExist;
+    }
+
+    /**
+     * create - sign-up
+     */
+    async create(signUpData: SignDataDto) {
+        const { username, password } = signUpData;
+
+        // 같은 username이 존재하는지 확인한다.
+        if(await this.existsUsername(username)) {
             throw new NotFoundException('Same username is exist. And we should change this exception since this is not a NotFoundException!!!!');
         }
 
@@ -32,32 +45,32 @@ export class LoginService {
         const hashedPwd = await bcrypt.hash(password, salt);
         await this.userModel.create({
             id: userCnt + 1,
-            username: username,
+            username,
             password: hashedPwd,
-            salt: salt,
+            salt,
             device_cnt: 0,
         });
     }
 
-    async login(signInData: SignDataDto): Promise<UserDataDto> {
+    /**
+     * login - sign-in
+     */
+    async login(signInData: SignDataDto): Promise<tokenDto> {
         const { username, password } = signInData;
 
         // username이 존재하는지 확인한다.
-        const user = await this.userModel.findOne({
-            where: {
-                username: username,
-            },
-        });
+        const user = await this.existsUsername(username);
         if(!user) {
             throw new NotFoundException('There has no username!');
         }
 
         // password가 일치하는지 확인한다.
-        const hashedPwd = await bcrypt.hash(password, user.salt);
-        const isMatch = await bcrypt.compare(password, hashedPwd);
-        if(!isMatch) {
+        const pwdMatch = await bcrypt.compare(password, user.password);
+        if(!pwdMatch) {
             throw new NotFoundException('Invalid password!');
         }
-        return user;
+
+        // token을 리턴한다.
+        return this.authService.createToken(user);
     }
 }

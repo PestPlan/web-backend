@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { tokenDto } from 'src/auth/dto/token.dto';
 import { SignDataDto } from './dto/signData.dto';
-import { UserDataDto } from './dto/userData.dto';
 import { LoginService } from './login.service';
 
 @Controller('login')
@@ -13,7 +13,7 @@ export class LoginController {
     }
 
     @Post('signin')
-    login(@Body() signInData: SignDataDto): Promise<UserDataDto> {
+    login(@Body() signInData: SignDataDto): Promise<tokenDto> {
         return this.loginService.login(signInData);
     }
 }

@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoginModule } from './login/login.module';
 import { User } from './login/model/user.model';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
     imports: [LoginModule,
@@ -18,7 +19,8 @@ import { User } from './login/model/user.model';
             define: {
                 timestamps: false
             }
-        })],
+        }),
+        AuthModule],
     controllers: [AppController],
     providers: [AppService],
 })
