@@ -13,5 +13,8 @@ export class User extends Model<User> {
     password: string;
 
     @Column
+    salt: string;
+
+    @Column
     device_cnt: number;
 }
