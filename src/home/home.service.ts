@@ -1,21 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AuthService } from 'src/auth/auth.service';
-import { User } from 'src/login/model/user.model';
-import { UserInfoDto } from 'src/home/dto/userInfo.dto';
+import { User } from 'src/models/user.model';
+import { InfoDto } from 'src/home/dto/info.dto';
+import { UserModelDto } from 'src/models/dto/userModel.dto';
+import { Device } from 'src/models/device.model';
+import { Notice } from 'src/models/notice.model';
+import { DeviceModelDto } from 'src/models/dto/deviceModel.dto';
 
 @Injectable()
 export class HomeService {
     constructor(
         @InjectModel(User)
         private userModel: typeof User,
+        @InjectModel(Device)
+        private deviceModel: typeof Device,
+        @InjectModel(Notice)
+        private noticeModel: typeof Notice,
         private authService: AuthService
     ) {}
 
     /**
-     * getUserInfo - 토큰에 저장된 사용자의 username과 device_cnt를 리턴한다.
+     * getUser - 토큰에 저장된 사용자의 User model을 리턴한다.
      */
-    async getUserInfo(access_token: string): Promise<UserInfoDto> {
+    async getUser(access_token: string): Promise<UserModelDto> {
         const tokenPayload = this.authService.decodeToken(access_token);
         
         // token에 저장된 id와 username이 존재하는지 확인한다.
@@ -29,10 +37,49 @@ export class HomeService {
         if(!user) {
             throw new NotFoundException('There has no username contained in the token you sent.');
         }
+        return user;
+    }
 
-        return { 
+    /**
+     * getDevices - Devices table에서 user_id가 일치하는 모든 Device model을 리턴한다.
+     */
+    async getDevices(user_id: number): Promise<DeviceModelDto[]> {
+        return await this.deviceModel.findAll({
+            raw: true,
+            where: {
+                user_id,
+            }
+        });
+    }
+
+    /**
+     * getNotices - Notices table에서 device_id가 일치하는 모든 Notice model을 리턴한다.
+     */
+    async getNotices(device_id: number[]) {
+        return await this.noticeModel.findAll({
+            raw: true,
+            where: {
+                device_id
+            }
+        });
+    }
+
+    /**
+     * getUserInfo - 토큰에 저장된 사용자의 정보를 리턴한다.
+     */
+    async getInfo(access_token: string): Promise<InfoDto> {
+        const user = await this.getUser(access_token);
+
+        const devices = await this.getDevices(user.id);
+        
+        const device_ids = devices.map(device => device.id);
+        const notices = await this.getNotices(device_ids);
+
+        return {
             username: user.username,
             device_cnt: user.device_cnt,
+            devices,
+            notices,
         };
     }
 }

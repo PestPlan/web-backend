@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SignDataDto } from './dto/signData.dto';
-import { User } from './model/user.model';
+import { User } from '../models/user.model';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from 'src/auth/auth.service';
 import { AccessTokenDto } from 'src/auth/dto/accessToken.dto';

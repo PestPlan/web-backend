@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserModelDto } from 'src/login/dto/userModel.dto';
+import { UserModelDto } from 'src/models/dto/userModel.dto';
 import { AccessTokenDto } from './dto/accessToken.dto';
 import { TokenPayloadDto } from './dto/tokenPayload.dto';
 
