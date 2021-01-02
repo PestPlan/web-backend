@@ -1,24 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserDataDto } from 'src/login/dto/userData.dto';
-import { tokenDto } from './dto/token.dto';
+import { UserModelDto } from 'src/login/dto/userModel.dto';
+import { AccessTokenDto } from './dto/accessToken.dto';
+import { TokenPayloadDto } from './dto/tokenPayload.dto';
 
 @Injectable()
 export class AuthService {
     constructor(private jwtService: JwtService) {}
 
     /**
-     * createToken - token을 생성한다.
+     * createToken - 토큰을 생성한다.
      */
-    createToken(userData: UserDataDto): tokenDto {
-        const { id, username, device_cnt } = userData;
+    createToken(userData: UserModelDto): AccessTokenDto {
+        const { id, username } = userData;
         const payload = {
             sub: id,
             username,
-            device_cnt,
         };
         return {
             access_token: this.jwtService.sign(payload),
         };
+    }
+
+    /**
+     * decodeToken - 올바른 토큰인지 검증하고 payload를 리턴한다.
+     */
+    decodeToken(token: string): TokenPayloadDto {
+        try {
+            return this.jwtService.verify(token);
+        } catch(exception) {
+            throw new HttpException({
+                status: HttpStatus.UNAUTHORIZED,
+                error: "The token has expired",
+            }, HttpStatus.UNAUTHORIZED);
+        }
     }
 }

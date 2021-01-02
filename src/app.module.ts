@@ -5,6 +5,8 @@ import { AppService } from './app.service';
 import { LoginModule } from './login/login.module';
 import { User } from './login/model/user.model';
 import { AuthModule } from './auth/auth.module';
+import { MainController } from './main/main.controller';
+import { MainModule } from './main/main.module';
 
 @Module({
     imports: [LoginModule,
@@ -20,7 +22,8 @@ import { AuthModule } from './auth/auth.module';
                 timestamps: false
             }
         }),
-        AuthModule],
+        AuthModule,
+        MainModule],
     controllers: [AppController],
     providers: [AppService],
 })

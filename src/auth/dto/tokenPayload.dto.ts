@@ -1,23 +1,21 @@
 import { IsNotEmpty, IsNumber, IsPositive, IsString, Min } from "class-validator";
 
-export class UserDataDto {
+export class TokenPayloadDto {
     @IsNumber()
     @IsPositive()
-    readonly id: number;
-
+    readonly sub: number;
+    
     @IsString()
     @IsNotEmpty()
     readonly username: string;
-
-    @IsString()
-    @IsNotEmpty()
-    readonly password: string;
-
-    @IsString()
-    @IsNotEmpty()
-    readonly salt: string;
-
+    
     @IsNumber()
     @Min(0)
     readonly device_cnt: number;
+    
+    @IsNumber()
+    readonly iat: number;
+
+    @IsNumber()
+    readonly exp: number;
 }
