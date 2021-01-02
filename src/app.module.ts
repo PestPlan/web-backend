@@ -5,8 +5,7 @@ import { AppService } from './app.service';
 import { LoginModule } from './login/login.module';
 import { User } from './login/model/user.model';
 import { AuthModule } from './auth/auth.module';
-import { MainController } from './main/main.controller';
-import { MainModule } from './main/main.module';
+import { HomeModule } from './home/home.module';
 
 @Module({
     imports: [LoginModule,
@@ -23,7 +22,7 @@ import { MainModule } from './main/main.module';
             }
         }),
         AuthModule,
-        MainModule],
+        HomeModule],
     controllers: [AppController],
     providers: [AppService],
 })

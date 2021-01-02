@@ -2,10 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/login/model/user.model';
-import { UserInfoDto } from 'src/main/dto/userInfo.dto';
+import { UserInfoDto } from 'src/home/dto/userInfo.dto';
 
 @Injectable()
-export class MainService {
+export class HomeService {
     constructor(
         @InjectModel(User)
         private userModel: typeof User,
