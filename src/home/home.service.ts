@@ -6,7 +6,7 @@ import { InfoDto } from 'src/home/dto/info.dto';
 import { UserModelDto } from 'src/models/dto/userModel.dto';
 import { Device } from 'src/models/device.model';
 import { Notice } from 'src/models/notice.model';
-import { DeviceModelDto } from 'src/models/dto/deviceModel.dto';
+import { DeviceInfoDto } from './dto/deviceInfo.dto';
 
 @Injectable()
 export class HomeService {
@@ -43,9 +43,10 @@ export class HomeService {
     /**
      * getDevices - Devices table에서 user_id가 일치하는 모든 Device model을 리턴한다.
      */
-    async getDevices(user_id: number): Promise<DeviceModelDto[]> {
+    async getDevices(user_id: number): Promise<DeviceInfoDto[]> {
         return await this.deviceModel.findAll({
             raw: true,
+            attributes: ['id', 'region', 'location', 'model_name'],
             where: {
                 user_id,
             }

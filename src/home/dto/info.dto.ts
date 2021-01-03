@@ -1,7 +1,7 @@
 import { Type } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsString, Min, ValidateNested } from "class-validator";
-import { DeviceModelDto } from "src/models/dto/deviceModel.dto";
 import { NoticeModelDto } from "src/models/dto/noticeModel.dto";
+import { DeviceInfoDto } from "./deviceInfo.dto";
 
 export class InfoDto {
     @IsString()
@@ -13,8 +13,8 @@ export class InfoDto {
     readonly device_cnt: number;
 
     @ValidateNested()
-    @Type(() => DeviceModelDto)
-    readonly devices: DeviceModelDto[];
+    @Type(() => DeviceInfoDto)
+    readonly devices: DeviceInfoDto[];
 
     @ValidateNested()
     @Type(() => NoticeModelDto)
