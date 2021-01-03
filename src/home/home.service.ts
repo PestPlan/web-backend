@@ -7,6 +7,7 @@ import { UserModelDto } from 'src/models/dto/userModel.dto';
 import { Device } from 'src/models/device.model';
 import { Notice } from 'src/models/notice.model';
 import { DeviceInfoDto } from './dto/deviceInfo.dto';
+import sequelize from 'sequelize';
 
 @Injectable()
 export class HomeService {
@@ -41,7 +42,7 @@ export class HomeService {
     }
 
     /**
-     * getDevices - Devices table에서 user_id가 일치하는 모든 Device model을 리턴한다.
+     * getDevices - Devices table에서 user_id가 일치하는 모든 기기 정보를 리턴한다.
      */
     async getDevices(user_id: number): Promise<DeviceInfoDto[]> {
         return await this.deviceModel.findAll({
@@ -54,10 +55,23 @@ export class HomeService {
     }
 
     /**
-     * getNotices - Notices table에서 device_id가 일치하는 모든 Notice model을 리턴한다.
+     * getNotices - Notices table에서 device_id가 일치하는 모든 알람 정보를 리턴한다.
      */
     async getNotices(device_id: number[]) {
         return await this.noticeModel.findAll({
+            include: [
+                {
+                    model: this.deviceModel,
+                    attributes: [],
+                }
+            ],
+            attributes: [
+                [sequelize.fn('date_format', sequelize.col('created_at'), '%Y-%m-%d %H:%i:%s'), 'created_at'],
+                [sequelize.literal('device.region'), 'region'],
+                [sequelize.literal('device.location'), 'location'],
+                [sequelize.literal('device.model_name'), 'model_name'],
+                'type'
+            ],
             raw: true,
             where: {
                 device_id
@@ -75,6 +89,7 @@ export class HomeService {
         
         const device_ids = devices.map(device => device.id);
         const notices = await this.getNotices(device_ids);
+        console.log(notices);
 
         return {
             username: user.username,
