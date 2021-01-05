@@ -6,8 +6,8 @@ import { InfoDto } from 'src/home/dto/info.dto';
 import { UserModelDto } from 'src/models/dto/userModel.dto';
 import { Device } from 'src/models/device.model';
 import { Notice } from 'src/models/notice.model';
-import { DeviceInfoDto } from './dto/deviceInfo.dto';
 import sequelize from 'sequelize';
+import { DeviceInfoDto } from './dto/deviceInfo.dto';
 
 @Injectable()
 export class HomeService {
@@ -20,6 +20,8 @@ export class HomeService {
         private noticeModel: typeof Notice,
         private authService: AuthService
     ) {}
+
+    private readonly ROW_CNT: number = 15;
 
     /**
      * getUser - 토큰에 저장된 사용자의 User model을 리턴한다.
@@ -35,6 +37,7 @@ export class HomeService {
                 username,
             }
         });
+
         if(!user) {
             throw new NotFoundException('There has no username contained in the token you sent.');
         }
@@ -42,22 +45,53 @@ export class HomeService {
     }
 
     /**
-     * getDevices - Devices table에서 user_id가 일치하는 모든 기기 정보를 리턴한다.
+     * getDeviceIds - 사용자가 가지는 기기의 id 배열을 리턴한다.
      */
-    async getDevices(user_id: number): Promise<DeviceInfoDto[]> {
-        return await this.deviceModel.findAll({
+    async getDeviceIds(user_id: number): Promise<number[]> {
+        const device_ids =  await this.deviceModel.findAll({
             raw: true,
-            attributes: ['id', 'region', 'location', 'model_name'],
+            attributes: ['id'],
             where: {
                 user_id,
             }
         });
+        return device_ids.map(device_id => device_id.id);
     }
 
     /**
-     * getNotices - Notices table에서 device_id가 일치하는 모든 알람 정보를 리턴한다.
+     * getUserInfo - 토큰에 저장된 사용자의 정보를 리턴한다.
      */
-    async getNotices(device_id: number[]) {
+    async getUserInfo(access_token: string): Promise<InfoDto> {
+        const user = await this.getUser(access_token);
+        
+        const device_ids = await this.getDeviceIds(user.id);
+
+        const notice_cnt = await this.noticeModel.count({
+            include: [
+                {
+                    model: this.deviceModel,
+                }
+            ],
+            where: {
+                device_id: device_ids
+            },
+        });
+
+        return {
+            username: user.username,
+            device_cnt: user.device_cnt,
+            notice_cnt,
+        };
+    }
+
+    /**
+     * getNoticeInfo - 사용자의 알람 정보 중 page에 해당하는 부분을 리턴한다.
+     */
+    async getNoticeInfo(access_token: string, page: number) {
+        const user = await this.getUser(access_token);
+        
+        const device_ids = await this.getDeviceIds(user.id);
+        
         return await this.noticeModel.findAll({
             include: [
                 {
@@ -74,28 +108,30 @@ export class HomeService {
             ],
             raw: true,
             where: {
-                device_id
-            }
+                device_id: device_ids
+            },
+            order: [
+                ['created_at', 'DESC']
+            ],
+            offset: this.ROW_CNT*(page-1),
+            limit: this.ROW_CNT
         });
     }
 
     /**
-     * getUserInfo - 토큰에 저장된 사용자의 정보를 리턴한다.
+     * getDeviceInfo - 사용자의 기기 정보 중 page에 해당하는 부분을 리턴한다.
      */
-    async getInfo(access_token: string): Promise<InfoDto> {
+    async getDeviceInfo(access_token: string, page: number): Promise<DeviceInfoDto[]> {
         const user = await this.getUser(access_token);
 
-        const devices = await this.getDevices(user.id);
-        
-        const device_ids = devices.map(device => device.id);
-        const notices = await this.getNotices(device_ids);
-        console.log(notices);
-
-        return {
-            username: user.username,
-            device_cnt: user.device_cnt,
-            devices,
-            notices,
-        };
+        return await this.deviceModel.findAll({
+            raw: true,
+            attributes: ['id', 'region', 'location', 'model_name'],
+            where: {
+                user_id: user.id
+            },
+            offset: this.ROW_CNT*(page-1),
+            limit: this.ROW_CNT
+        });
     }
 }

@@ -6,11 +6,11 @@ export class DeviceInfoDto {
     id: number;
 
     @IsString()
-    model_name: string;
-
-    @IsString()
     region: string;
 
     @IsString()
     location: string;
+
+    @IsString()
+    model_name: string;
 }

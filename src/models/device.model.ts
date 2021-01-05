@@ -12,13 +12,13 @@ export class Device extends Model<Device> {
     user_id: number;
 
     @Column
-    model_name: string;
-
-    @Column
     region: string;
 
     @Column
     location: string;
+
+    @Column
+    model_name: string;
 
     @Column
     is_replacement: boolean;
