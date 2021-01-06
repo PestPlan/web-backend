@@ -19,4 +19,9 @@ export class HomeController {
     getDeviceInfo(@Query('access_token') access_token: string, @Query('page') page: number) {
         return this.homeService.getDeviceInfo(access_token, page);
     }
+
+    @Get('detail')
+    getDeviceDetail(@Query('device_id') device_id: number) {
+        return this.homeService.getDeviceDetail(device_id);
+    }
 }

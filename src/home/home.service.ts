@@ -134,4 +134,15 @@ export class HomeService {
             limit: this.ROW_CNT
         });
     }
+
+    /**
+     * getDeviceDetail - 기기의 세부 정보를 리턴한다.
+     */
+    async getDeviceDetail(device_id: number) {
+        return await this.deviceModel.findOne({
+            where: {
+                id: device_id
+            }
+        });
+    }
 }
