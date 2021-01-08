@@ -1,7 +1,12 @@
-import { Column, ForeignKey, PrimaryKey, Model, Table } from "sequelize-typescript";
-import { User } from "./user.model";
+import { Column, ForeignKey, PrimaryKey, Model, Table, DataType } from 'sequelize-typescript';
+import { User } from './user.entity';
 
-@Table
+// const tableOptions: IDefineOptions = {
+//     timestamp: true,
+//     tableName: 'users',
+// } as IDefineOptions;
+
+@Table({})
 export class Device extends Model<Device> {
     @PrimaryKey
     @Column
@@ -10,6 +15,9 @@ export class Device extends Model<Device> {
     @ForeignKey(() => User)
     @Column
     user_id: number;
+
+    @Column
+    trap_id: number;
 
     @Column
     region: string;
@@ -25,4 +33,7 @@ export class Device extends Model<Device> {
 
     @Column
     is_error: boolean;
+
+    @Column
+    created_at: Date;
 }

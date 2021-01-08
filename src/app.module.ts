@@ -3,14 +3,15 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoginModule } from './login/login.module';
-import { User } from './models/user.model';
 import { AuthModule } from './auth/auth.module';
 import { HomeModule } from './home/home.module';
-import { Device } from './models/device.model';
-import { Notice } from './models/notice.model';
+import { User } from './models/entitys/user.entity';
+import { Device } from './models/entitys/device.entity';
+import { Notice } from './models/entitys/notice.entity';
 
 @Module({
-    imports: [LoginModule,
+    imports: [
+        LoginModule,
         SequelizeModule.forRoot({
             dialect: 'mariadb',
             host: 'localhost',
@@ -25,7 +26,8 @@ import { Notice } from './models/notice.model';
             autoLoadModels: true,
         }),
         AuthModule,
-        HomeModule],
+        HomeModule,
+    ],
     controllers: [AppController],
     providers: [AppService],
 })

@@ -1,24 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
-import { User } from 'src/models/user.model';
 import { InfoDto } from 'src/home/dto/info.dto';
 import { UserModelDto } from 'src/models/dto/userModel.dto';
-import { Device } from 'src/models/device.model';
-import { Notice } from 'src/models/notice.model';
+import { User } from 'src/models/entitys/user.entity';
+import { Device } from 'src/models/entitys/device.entity';
+import { Notice } from 'src/models/entitys/notice.entity';
 import sequelize from 'sequelize';
 import { DeviceInfoDto } from './dto/deviceInfo.dto';
 
 @Injectable()
 export class HomeService {
     constructor(
-        @InjectModel(User)
-        private userModel: typeof User,
-        @InjectModel(Device)
-        private deviceModel: typeof Device,
-        @InjectModel(Notice)
-        private noticeModel: typeof Notice,
-        private authService: AuthService
+        @Inject('UserRepository') private userRepository: typeof User,
+        @Inject('DeviceRepository') private deviceRepository: typeof Device,
+        @Inject('NoticeRepository') private noticeRepository: typeof Notice,
+        private authService: AuthService,
     ) {}
 
     private readonly ROW_CNT: number = 15;
@@ -28,17 +24,16 @@ export class HomeService {
      */
     async getUser(access_token: string): Promise<UserModelDto> {
         const tokenPayload = this.authService.decodeToken(access_token);
-        
         // token에 저장된 id와 username이 존재하는지 확인한다.
         const { sub, username } = tokenPayload;
-        const user = await this.userModel.findOne({
+        const user = await this.userRepository.findOne({
             where: {
                 id: sub,
                 username,
-            }
+            },
         });
 
-        if(!user) {
+        if (!user) {
             throw new NotFoundException('There has no username contained in the token you sent.');
         }
         return user;
@@ -48,14 +43,14 @@ export class HomeService {
      * getDeviceIds - 사용자가 가지는 기기의 id 배열을 리턴한다.
      */
     async getDeviceIds(user_id: number): Promise<number[]> {
-        const device_ids =  await this.deviceModel.findAll({
+        const device_ids = await this.deviceRepository.findAll({
             raw: true,
             attributes: ['id'],
             where: {
                 user_id,
-            }
+            },
         });
-        return device_ids.map(device_id => device_id.id);
+        return device_ids.map((device_id) => device_id.id);
     }
 
     /**
@@ -63,17 +58,17 @@ export class HomeService {
      */
     async getUserInfo(access_token: string): Promise<InfoDto> {
         const user = await this.getUser(access_token);
-        
+
         const device_ids = await this.getDeviceIds(user.id);
 
-        const notice_cnt = await this.noticeModel.count({
+        const notice_cnt = await this.noticeRepository.count({
             include: [
                 {
-                    model: this.deviceModel,
-                }
+                    model: this.deviceRepository,
+                },
             ],
             where: {
-                device_id: device_ids
+                device_id: device_ids,
             },
         });
 
@@ -89,32 +84,30 @@ export class HomeService {
      */
     async getNoticeInfo(access_token: string, page: number) {
         const user = await this.getUser(access_token);
-        
+
         const device_ids = await this.getDeviceIds(user.id);
-        
-        return await this.noticeModel.findAll({
+
+        return await this.noticeRepository.findAll({
             include: [
                 {
-                    model: this.deviceModel,
+                    model: this.deviceRepository,
                     attributes: [],
-                }
+                },
             ],
             attributes: [
                 [sequelize.fn('date_format', sequelize.col('created_at'), '%Y-%m-%d %H:%i:%s'), 'created_at'],
                 [sequelize.literal('device.region'), 'region'],
                 [sequelize.literal('device.location'), 'location'],
                 [sequelize.literal('device.model_name'), 'model_name'],
-                'type'
+                'type',
             ],
             raw: true,
             where: {
-                device_id: device_ids
+                device_id: device_ids,
             },
-            order: [
-                ['created_at', 'DESC']
-            ],
-            offset: this.ROW_CNT*(page-1),
-            limit: this.ROW_CNT
+            order: [['created_at', 'DESC']],
+            offset: this.ROW_CNT * (page - 1),
+            limit: this.ROW_CNT,
         });
     }
 
@@ -124,14 +117,14 @@ export class HomeService {
     async getDeviceInfo(access_token: string, page: number): Promise<DeviceInfoDto[]> {
         const user = await this.getUser(access_token);
 
-        return await this.deviceModel.findAll({
+        return await this.deviceRepository.findAll({
             raw: true,
             attributes: ['id', 'region', 'location', 'model_name'],
             where: {
-                user_id: user.id
+                user_id: user.id,
             },
-            offset: this.ROW_CNT*(page-1),
-            limit: this.ROW_CNT
+            offset: this.ROW_CNT * (page - 1),
+            limit: this.ROW_CNT,
         });
     }
 
@@ -139,10 +132,10 @@ export class HomeService {
      * getDeviceDetail - 기기의 세부 정보를 리턴한다.
      */
     async getDeviceDetail(device_id: number) {
-        return await this.deviceModel.findOne({
+        return await this.deviceRepository.findOne({
             where: {
-                id: device_id
-            }
+                id: device_id,
+            },
         });
     }
 }

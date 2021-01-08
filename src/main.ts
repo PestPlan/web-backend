@@ -1,6 +1,5 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import sequelize from 'sequelize';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -12,14 +11,16 @@ async function bootstrap() {
      * validationError.target: Indicates if target should be exposed in ValidationError.
      * validationError.value: Indicates if validated value should be exposed in ValidationError.
      */
-    app.useGlobalPipes(new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        validationError: {
-            target: true,
-            value: true,
-        }
-    }));
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            forbidNonWhitelisted: true,
+            validationError: {
+                target: true,
+                value: true,
+            },
+        }),
+    );
     await app.listen(4000);
 }
 bootstrap();

@@ -1,5 +1,5 @@
-import { Column, ForeignKey, PrimaryKey, Model, Table, BelongsTo } from "sequelize-typescript";
-import { Device } from "./device.model";
+import { Column, ForeignKey, PrimaryKey, Model, Table, BelongsTo } from 'sequelize-typescript';
+import { Device } from './device.entity';
 
 @Table
 export class Notice extends Model<Notice> {
