@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { LoginModule } from './login/login.module';
-import { AuthModule } from './auth/auth.module';
-import { HomeModule } from './home/home.module';
-import { User } from './models/entitys/user.entity';
-import { Device } from './models/entitys/device.entity';
-import { Notice } from './models/entitys/notice.entity';
+import { LoginModule } from './modules/login/login.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { HomeModule } from './modules/home/home.module';
+import { User } from './models/entities/user.entity';
+import { Device } from './models/entities/device.entity';
+import { Notice } from './models/entities/notice.entity';
 
 @Module({
     imports: [

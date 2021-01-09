@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserModelDto } from 'src/models/dto/userModel.dto';
-import { AccessTokenDto } from './dto/accessToken.dto';
-import { TokenPayloadDto } from './dto/tokenPayload.dto';
+import { AccessTokenDto } from '../../models/dto/accessToken.dto';
+import { TokenPayloadDto } from '../../models/dto/tokenPayload.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,11 +28,14 @@ export class AuthService {
     decodeToken(token: string): TokenPayloadDto {
         try {
             return this.jwtService.verify(token);
-        } catch(exception) {
-            throw new HttpException({
-                status: HttpStatus.UNAUTHORIZED,
-                error: "The token has expired",
-            }, HttpStatus.UNAUTHORIZED);
+        } catch (exception) {
+            throw new HttpException(
+                {
+                    status: HttpStatus.UNAUTHORIZED,
+                    error: 'The token has expired',
+                },
+                HttpStatus.UNAUTHORIZED,
+            );
         }
     }
 }

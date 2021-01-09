@@ -1,12 +1,12 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { AuthService } from 'src/auth/auth.service';
-import { InfoDto } from 'src/home/dto/info.dto';
+import { AuthService } from 'src/modules/auth/auth.service';
+import { InfoDto } from 'src/models/dto/info.dto';
 import { UserModelDto } from 'src/models/dto/userModel.dto';
-import { User } from 'src/models/entitys/user.entity';
-import { Device } from 'src/models/entitys/device.entity';
-import { Notice } from 'src/models/entitys/notice.entity';
+import { User } from 'src/models/entities/user.entity';
+import { Device } from 'src/models/entities/device.entity';
+import { Notice } from 'src/models/entities/notice.entity';
 import sequelize from 'sequelize';
-import { DeviceInfoDto } from './dto/deviceInfo.dto';
+import { DeviceInfoDto } from '../../models/dto/deviceInfo.dto';
 
 @Injectable()
 export class HomeService {

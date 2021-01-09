@@ -1,9 +1,9 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { SignDataDto } from './dto/signData.dto';
-import { User } from '../models/entitys/user.entity';
+import { SignDataDto } from '../../models/dto/signData.dto';
+import { User } from '../../models/entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { AuthService } from 'src/auth/auth.service';
-import { AccessTokenDto } from 'src/auth/dto/accessToken.dto';
+import { AuthService } from 'src/modules/auth/auth.service';
+import { AccessTokenDto } from 'src/models/dto/accessToken.dto';
 
 @Injectable()
 export class LoginService {

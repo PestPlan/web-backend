@@ -1,4 +1,4 @@
-import { Device } from '../entitys/device.entity';
+import { Device } from '../entities/device.entity';
 
 export const devicesProviders = [
     {

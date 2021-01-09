@@ -1,4 +1,4 @@
-import { Notice } from '../entitys/notice.entity';
+import { Notice } from '../entities/notice.entity';
 
 export const noticesProviders = [
     {
