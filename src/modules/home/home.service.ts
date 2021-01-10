@@ -95,7 +95,7 @@ export class HomeService {
                 },
             ],
             attributes: [
-                [sequelize.fn('date_format', sequelize.col('created_at'), '%Y-%m-%d %H:%i:%s'), 'created_at'],
+                [sequelize.fn('date_format', sequelize.col('Notice.created_at'), '%Y-%m-%d %H:%i:%s'), 'created_at'],
                 [sequelize.literal('device.region'), 'region'],
                 [sequelize.literal('device.location'), 'location'],
                 [sequelize.literal('device.model_name'), 'model_name'],
