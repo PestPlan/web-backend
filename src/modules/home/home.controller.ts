@@ -11,8 +11,17 @@ export class HomeController {
     }
 
     @Get('notices')
-    getNoticeInfo(@Query('access_token') access_token: string, @Query('page') page: number) {
-        return this.homeService.getNoticeInfo(access_token, page);
+    getNoticeInfo(
+        @Query('access_token') access_token: string,
+        @Query('page') page: number,
+        @Query('start') start: Date,
+        @Query('end') end: Date,
+        @Query('regions') regions: string[],
+        @Query('locations') locations: string[],
+        @Query('models') models: string[],
+        @Query('types') types: string[]
+    ) {
+        return this.homeService.getNoticeInfo(access_token, page, start, end, regions, locations, models, types);
     }
 
     @Get('devices')

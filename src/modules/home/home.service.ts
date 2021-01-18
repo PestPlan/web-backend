@@ -7,6 +7,7 @@ import { Device } from 'src/models/entities/device.entity';
 import { Notice } from 'src/models/entities/notice.entity';
 import sequelize from 'sequelize';
 import { DeviceInfoDto } from '../../models/dto/deviceInfo.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class HomeService {
@@ -82,16 +83,30 @@ export class HomeService {
     /**
      * getNoticeInfo - 사용자의 알람 정보 중 page에 해당하는 부분을 리턴한다.
      */
-    async getNoticeInfo(access_token: string, page: number) {
+    async getNoticeInfo(access_token: string, page: number, start: Date, end: Date, regions: string[], locations: string[], models: string[], types: string[]) {
         const user = await this.getUser(access_token);
 
         const device_ids = await this.getDeviceIds(user.id);
+
+        let deviceWhereQuery: any = {};
+        if(regions) deviceWhereQuery.region = regions;
+        if(locations) deviceWhereQuery.location = locations;
+        if(models) deviceWhereQuery.model_name = models;
+
+        let noticeWhereQuery: any = { device_id: device_ids };
+        if(start) noticeWhereQuery.created_at = { [Op.gte]: start };
+        if(end) noticeWhereQuery.created_at = {
+            ...noticeWhereQuery.created_at,
+            [Op.lte]: end,
+        };
+        if(types) noticeWhereQuery.type = types;
 
         return await this.noticeRepository.findAll({
             include: [
                 {
                     model: this.deviceRepository,
                     attributes: [],
+                    where: deviceWhereQuery,
                 },
             ],
             attributes: [
@@ -102,9 +117,7 @@ export class HomeService {
                 'type',
             ],
             raw: true,
-            where: {
-                device_id: device_ids,
-            },
+            where: noticeWhereQuery,
             order: [['created_at', 'DESC']],
             offset: this.ROW_CNT * (page - 1),
             limit: this.ROW_CNT,
