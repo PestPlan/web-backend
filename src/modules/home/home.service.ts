@@ -127,15 +127,20 @@ export class HomeService {
     /**
      * getDeviceInfo - 사용자의 기기 정보 중 page에 해당하는 부분을 리턴한다.
      */
-    async getDeviceInfo(access_token: string, page: number): Promise<DeviceInfoDto[]> {
+    async getDeviceInfo(access_token: string, page: number, regions: string[], locations: string[], models: string[]): Promise<DeviceInfoDto[]> {
         const user = await this.getUser(access_token);
+
+        let where: any = {
+            user_id: user.id
+        };
+        if(regions) where.region = regions;
+        if(locations) where.location = locations;
+        if(models) where.model_name = models;
 
         return await this.deviceRepository.findAll({
             raw: true,
             attributes: ['id', 'region', 'location', 'model_name'],
-            where: {
-                user_id: user.id,
-            },
+            where,
             offset: this.ROW_CNT * (page - 1),
             limit: this.ROW_CNT,
         });

@@ -25,8 +25,14 @@ export class HomeController {
     }
 
     @Get('devices')
-    getDeviceInfo(@Query('access_token') access_token: string, @Query('page') page: number) {
-        return this.homeService.getDeviceInfo(access_token, page);
+    getDeviceInfo(
+        @Query('access_token') access_token: string,
+        @Query('page') page: number,
+        @Query('regions') regions: string[],
+        @Query('locations') locations: string[],
+        @Query('models') models: string[]
+    ) {
+        return this.homeService.getDeviceInfo(access_token, page, regions, locations, models);
     }
 
     @Get('detail')
