@@ -23,8 +23,8 @@ export class HomeService {
     /**
      * getUser - 토큰에 저장된 사용자의 User model을 리턴한다.
      */
-    async getUser(access_token: string): Promise<UserModelDto> {
-        const tokenPayload = this.authService.decodeToken(access_token);
+    async getUser(accessToken: string): Promise<UserModelDto> {
+        const tokenPayload = this.authService.decodeToken(accessToken);
         // token에 저장된 id와 username이 존재하는지 확인한다.
         const { sub, username } = tokenPayload;
         const user = await this.userRepository.findOne({
@@ -43,57 +43,57 @@ export class HomeService {
     /**
      * getDeviceIds - 사용자가 가지는 기기의 id 배열을 리턴한다.
      */
-    async getDeviceIds(user_id: number): Promise<number[]> {
-        const device_ids = await this.deviceRepository.findAll({
+    async getDeviceIds(userId: number): Promise<number[]> {
+        const deviceIds = await this.deviceRepository.findAll({
             raw: true,
             attributes: ['id'],
             where: {
-                user_id,
+                user_id: userId,
             },
         });
-        return device_ids.map((device_id) => device_id.id);
+        return deviceIds.map((deviceId) => deviceId.id);
     }
 
     /**
      * getUserInfo - 토큰에 저장된 사용자의 정보를 리턴한다.
      */
-    async getUserInfo(access_token: string): Promise<InfoDto> {
-        const user = await this.getUser(access_token);
+    async getUserName(accessToken: string): Promise<InfoDto> {
+        const user = await this.getUser(accessToken);
 
-        const device_ids = await this.getDeviceIds(user.id);
+        const deviceIds = await this.getDeviceIds(user.id);
 
-        const notice_cnt = await this.noticeRepository.count({
+        const noticeCnt = await this.noticeRepository.count({
             include: [
                 {
                     model: this.deviceRepository,
                 },
             ],
             where: {
-                device_id: device_ids,
+                device_id: deviceIds,
             },
         });
 
         return {
             username: user.username,
             device_cnt: user.device_cnt,
-            notice_cnt,
+            notice_cnt: noticeCnt,
         };
     }
 
     /**
      * getNoticeInfo - 사용자의 알람 정보 중 page에 해당하는 부분을 리턴한다.
      */
-    async getNoticeInfo(access_token: string, page: number, start: Date, end: Date, regions: string[], locations: string[], models: string[], types: string[]) {
-        const user = await this.getUser(access_token);
+    async getNoticeInfo(accessToken: string, page: number, start: Date, end: Date, regions: string[], locations: string[], models: string[], types: string[]) {
+        const user = await this.getUser(accessToken);
 
-        const device_ids = await this.getDeviceIds(user.id);
+        const deviceIds = await this.getDeviceIds(user.id);
 
         let deviceWhereQuery: any = {};
         if(regions) deviceWhereQuery.region = regions;
         if(locations) deviceWhereQuery.location = locations;
         if(models) deviceWhereQuery.model_name = models;
 
-        let noticeWhereQuery: any = { device_id: device_ids };
+        let noticeWhereQuery: any = { device_id: deviceIds };
         if(start) noticeWhereQuery.created_at = { [Op.gte]: start };
         if(end) noticeWhereQuery.created_at = {
             ...noticeWhereQuery.created_at,
@@ -127,8 +127,8 @@ export class HomeService {
     /**
      * getDeviceInfo - 사용자의 기기 정보 중 page에 해당하는 부분을 리턴한다.
      */
-    async getDeviceInfo(access_token: string, page: number, regions: string[], locations: string[], models: string[]): Promise<DeviceInfoDto[]> {
-        const user = await this.getUser(access_token);
+    async getDeviceInfo(accessToken: string, page: number, regions: string[], locations: string[], models: string[]): Promise<DeviceInfoDto[]> {
+        const user = await this.getUser(accessToken);
 
         let where: any = {
             user_id: user.id
@@ -149,10 +149,10 @@ export class HomeService {
     /**
      * getDeviceDetail - 기기의 세부 정보를 리턴한다.
      */
-    async getDeviceDetail(device_id: number) {
+    async getDeviceDetail(deviceId: number) {
         return await this.deviceRepository.findOne({
             where: {
-                id: device_id,
+                id: deviceId,
             },
         });
     }

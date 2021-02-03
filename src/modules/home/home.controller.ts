@@ -6,13 +6,13 @@ export class HomeController {
     constructor(private readonly homeService: HomeService) {}
 
     @Get('user')
-    getInfo(@Query('access_token') access_token: string) {
-        return this.homeService.getUserInfo(access_token);
+    getUserName(@Query('access_token') accessToken: string) {
+        return this.homeService.getUserName(accessToken);
     }
 
     @Get('notices')
     getNoticeInfo(
-        @Query('access_token') access_token: string,
+        @Query('access_token') accessToken: string,
         @Query('page') page: number,
         @Query('start') start: Date,
         @Query('end') end: Date,
@@ -21,22 +21,22 @@ export class HomeController {
         @Query('models') models: string[],
         @Query('types') types: string[]
     ) {
-        return this.homeService.getNoticeInfo(access_token, page, start, end, regions, locations, models, types);
+        return this.homeService.getNoticeInfo(accessToken, page, start, end, regions, locations, models, types);
     }
 
     @Get('devices')
     getDeviceInfo(
-        @Query('access_token') access_token: string,
+        @Query('access_token') accessToken: string,
         @Query('page') page: number,
         @Query('regions') regions: string[],
         @Query('locations') locations: string[],
         @Query('models') models: string[]
     ) {
-        return this.homeService.getDeviceInfo(access_token, page, regions, locations, models);
+        return this.homeService.getDeviceInfo(accessToken, page, regions, locations, models);
     }
 
     @Get('detail')
-    getDeviceDetail(@Query('device_id') device_id: number) {
-        return this.homeService.getDeviceDetail(device_id);
+    getDeviceDetail(@Query('device_id') deviceId: number) {
+        return this.homeService.getDeviceDetail(deviceId);
     }
 }
