@@ -1,31 +1,18 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { SignDataDto } from '../../models/dto/signData.dto';
-import { User } from '../../models/entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { AuthService } from 'src/modules/auth/auth.service';
+import { Model } from 'mongoose';
+import * as constants from 'src/constants/constants';
 import { AccessTokenDto } from 'src/models/dto/accessToken.dto';
+import { SignDataDto } from 'src/models/dto/signData.dto';
+import { UserDocument } from 'src/models/schemas/user.schema';
+import { AuthService } from 'src/modules/auth/auth.service';
 
 @Injectable()
 export class LoginService {
     constructor(
-        @Inject('UserRepository')
-        private userRepository: typeof User,
+        @Inject(constants.USER_MODEL) private userModel: Model<UserDocument>,
         private authService: AuthService,
     ) {}
-
-    /**
-     * existsUsername - User model에 같은 username이 존재하는지 확인한다.
-     * @returns Promise<User> - 존재할 경우
-     *          null - 존재하지 않을 경우
-     */
-    async existsUsername(username: string): Promise<User> {
-        const isExist = await this.userRepository.findOne({
-            where: {
-                username,
-            },
-        });
-        return isExist;
-    }
 
     /**
      * create - sign-up
@@ -34,22 +21,19 @@ export class LoginService {
         const { username, password } = signUpData;
 
         // 같은 username이 존재하는지 확인한다.
-        if (await this.existsUsername(username)) {
+        if (await this.userModel.exists({ "username": username })) {
             throw new NotFoundException('Same username is exist. And we should change this exception since this is not a NotFoundException!!!!');
         }
 
         // User에 데이터를 추가한다.
-        const userCnt = await this.userRepository.count();
         const salt = await bcrypt.genSalt();
         const hashedPwd = await bcrypt.hash(password, salt);
-        const newUser = await this.userRepository.create({
-            id: userCnt + 1,
-            username: username,
+        const newUserData = {
+            username,
             password: hashedPwd,
-            salt,
-        });
+        };
 
-        return newUser;
+        new this.userModel(newUserData).save();
     }
 
     /**
@@ -59,18 +43,18 @@ export class LoginService {
         const { username, password } = signInData;
 
         // username이 존재하는지 확인한다.
-        const user = await this.existsUsername(username);
-        if (!user) {
-            throw new NotFoundException('There has no username!');
+        const userData = await this.userModel.findOne({ "username": username });
+        if(!userData) {
+            throw new NotFoundException('You should sign up first!');
         }
 
         // password가 일치하는지 확인한다.
-        const pwdMatch = await bcrypt.compare(password, user.password);
+        const pwdMatch = await bcrypt.compare(password, userData.password);
         if (!pwdMatch) {
             throw new NotFoundException('Invalid password!');
         }
 
         // token을 리턴한다.
-        return this.authService.createToken(user);
+        return this.authService.createToken(userData);
     }
 }

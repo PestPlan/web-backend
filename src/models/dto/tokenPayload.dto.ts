@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsPositive, IsString, Min } from "class-validator";
+import { IsNotEmpty, IsNumber, IsPositive, IsString } from "class-validator";
 
 export class TokenPayloadDto {
     @IsNumber()
@@ -8,14 +8,4 @@ export class TokenPayloadDto {
     @IsString()
     @IsNotEmpty()
     readonly username: string;
-    
-    @IsNumber()
-    @Min(0)
-    readonly device_cnt: number;
-    
-    @IsNumber()
-    readonly iat: number;
-
-    @IsNumber()
-    readonly exp: number;
 }

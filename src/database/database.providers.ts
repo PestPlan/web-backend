@@ -1,23 +1,9 @@
-import { Sequelize } from 'sequelize-typescript';
-import { User } from '../models/entities/user.entity';
-import { Device } from '../models/entities/device.entity';
-import { Notice } from '../models/entities/notice.entity';
+import * as mongoose from 'mongoose';
+import { DATABASE_CONNECTION, DATABASE_URL } from '../constants/constants';
 
 export const databaseProviders = [
     {
-        provide: 'SEQUELIZE',
-        useFactory: async () => {
-            const sequelize = new Sequelize({
-                dialect: 'mariadb',
-                host: 'localhost',
-                port: 3306,
-                username: 'root',
-                password: 'root',
-                database: 'pest',
-            });
-            sequelize.addModels([User, Device, Notice]);
-            await sequelize.sync();
-            return sequelize;
-        },
-    },
+        provide: DATABASE_CONNECTION,
+        useFactory: (): Promise<typeof mongoose> => mongoose.connect(DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
+    }
 ];

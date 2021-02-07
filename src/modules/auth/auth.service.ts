@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserModelDto } from 'src/models/dto/userModel.dto';
-import { AccessTokenDto } from '../../models/dto/accessToken.dto';
-import { TokenPayloadDto } from '../../models/dto/tokenPayload.dto';
+import { AccessTokenDto } from 'src/models/dto/accessToken.dto';
+import { TokenPayloadDto } from 'src/models/dto/tokenPayload.dto';
+import { UserDocument } from 'src/models/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -11,10 +11,10 @@ export class AuthService {
     /**
      * createToken - 토큰을 생성한다.
      */
-    createToken(userData: UserModelDto): AccessTokenDto {
-        const { id, username } = userData;
+    createToken(userData: UserDocument): AccessTokenDto {
+        const { _id, username } = userData;
         const payload = {
-            sub: id,
+            sub: _id,
             username,
         };
         return {

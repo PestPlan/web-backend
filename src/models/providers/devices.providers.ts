@@ -1,8 +1,11 @@
-import { Device } from '../entities/device.entity';
+import { Connection } from 'mongoose';
+import { DATABASE_CONNECTION, DEVICE_MODEL } from 'src/constants/constants';
+import { DeviceSchema } from '../schemas/device.schema';
 
 export const devicesProviders = [
     {
-        provide: 'DeviceRepository',
-        useValue: Device,
-    },
-];
+        provide: DEVICE_MODEL,
+        useFactory: (connection: Connection) => connection.model(DEVICE_MODEL, DeviceSchema),
+        inject: [DATABASE_CONNECTION],
+    }
+]
