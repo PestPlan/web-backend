@@ -9,16 +9,16 @@ export class Notice {
     device_id: string;
 
     @Prop()
-    type: string;
+    created_at: Date;
 
     @Prop()
-    created_at: Date;
+    type: string;
 
     @Prop()
     is_read: boolean;
 
     @Prop()
-    contents: string;
+    packet: string;
 }
 
 export const NoticeSchema = SchemaFactory.createForClass(Notice);

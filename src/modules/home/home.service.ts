@@ -91,6 +91,8 @@ export class HomeService {
                 device_id: 1,
                 created_at: 1,
                 type: 1,
+                is_read: 1,
+                packet: 1,
             },
             {
                 limit: row,
@@ -101,14 +103,15 @@ export class HomeService {
 
         return filteredNoticeList.map(noticeData => {
             const deviceData = filteredDeviceList.find(data => data._id.toString() === noticeData.device_id);
-            console.log(deviceData);
 
             return {
                 created_at: noticeData.created_at,
-                type: noticeData.type,
                 region: deviceData.region,
                 location: deviceData.location,
                 model_name: deviceData.model_name,
+                type: noticeData.type,
+                is_read: noticeData.is_read,
+                packet: noticeData.packet,
             };
         });
     }
