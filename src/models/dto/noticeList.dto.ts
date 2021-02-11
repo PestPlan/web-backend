@@ -1,4 +1,5 @@
-import { IsBoolean, IsDate, IsString } from "class-validator";
+import { IsBoolean, IsDate, IsString, ValidateNested } from "class-validator";
+import { SPUDocument } from "../schemas/SPU.schema";
 
 export class NoticeListDto {
     @IsDate()
@@ -19,6 +20,6 @@ export class NoticeListDto {
     @IsBoolean()
     is_read: boolean;
 
-    @IsString()
-    packet: string;
+    @ValidateNested()
+    packet: SPUDocument;
 }
