@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import * as constants from 'src/constants/constants';
 import { DeviceListDto } from 'src/models/dto/deviceList.dto';
 import { InfoDto } from 'src/models/dto/info.dto';
+import { NewReadStatusDto } from 'src/models/dto/newReadStatus.dto';
 import { NoticeListDto } from 'src/models/dto/noticeList.dto';
 import { DeviceDocument } from 'src/models/schemas/device.schema';
 import { NoticeDocument } from 'src/models/schemas/notice.schema';
@@ -87,7 +88,7 @@ export class HomeService {
                 ...(types && { type: { $in: types } }),
             },
             {
-                _id: 0,
+                _id: 1,
                 device_id: 1,
                 created_at: 1,
                 type: 1,
@@ -105,6 +106,7 @@ export class HomeService {
             const deviceData = filteredDeviceList.find(data => data._id.toString() === noticeData.device_id);
 
             return {
+                notice_id: noticeData._id,
                 created_at: noticeData.created_at,
                 region: deviceData.region,
                 location: deviceData.location,
@@ -154,4 +156,11 @@ export class HomeService {
     //         },
     //     });
     // }
+
+    /**
+     * updateNoticeReadStatus - notices collection에서 is_read 값을 false에서 true로 업데이트한다.
+     */
+    async updateNoticeReadStatus(noticeId: string, newReadStatus: NewReadStatusDto) {
+        return await this.noticeModel.findByIdAndUpdate(noticeId, newReadStatus);
+    }
 }

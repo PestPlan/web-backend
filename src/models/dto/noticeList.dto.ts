@@ -2,6 +2,9 @@ import { IsBoolean, IsDate, IsString, ValidateNested } from "class-validator";
 import { SPUDocument } from "../schemas/SPU.schema";
 
 export class NoticeListDto {
+    @IsString()
+    notice_id: string;
+
     @IsDate()
     created_at: Date;
 
