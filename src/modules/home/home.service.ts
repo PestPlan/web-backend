@@ -58,7 +58,7 @@ export class HomeService {
     /**
      * getNoticeList - 사용자의 알람 정보 중 page에 해당하는 부분을 리턴한다.
      */
-    async getNoticeList(accessToken: string, page: number, row: number, start: Date, end: Date, regions: string[], locations: string[], models: string[], types: string[]): Promise<NoticeListDto[]> {
+    async getNoticeList(accessToken: string, page: number, row: number, start: Date, end: Date, regions: string[], locations: string[], models: string[], types: string[]): Promise<NoticeListDto> {
         const userData = await this.getUserByToken(accessToken);
 
         const filteredDeviceList = await this.deviceModel.find(
@@ -96,26 +96,30 @@ export class HomeService {
                 packet: 1,
             },
             {
-                limit: row,
-                skip: row * (page -1),
                 sort: { created_at: -1 },
             }
         );
 
-        return filteredNoticeList.map(noticeData => {
-            const deviceData = filteredDeviceList.find(data => data._id.toString() === noticeData.device_id);
+        const limitedNoticeList = filteredNoticeList.slice(row * (page -1), row);
 
-            return {
-                notice_id: noticeData._id,
-                created_at: noticeData.created_at,
-                region: deviceData.region,
-                location: deviceData.location,
-                model_name: deviceData.model_name,
-                type: noticeData.type,
-                is_read: noticeData.is_read,
-                packet: noticeData.packet,
-            };
-        });
+        return {
+            total_filtered_count: filteredNoticeList.length,
+            total_not_read_count: limitedNoticeList.filter(noticeData => noticeData.is_read === false).length,
+            notice_list: limitedNoticeList.map(noticeData => {
+                const deviceData = filteredDeviceList.find(data => data._id.toString() === noticeData.device_id);
+
+                return {
+                    notice_id: noticeData._id,
+                    created_at: noticeData.created_at,
+                    region: deviceData.region,
+                    location: deviceData.location,
+                    model_name: deviceData.model_name,
+                    type: noticeData.type,
+                    is_read: noticeData.is_read,
+                    packet: noticeData.packet,
+                };
+            })
+        }
     }
 
     /**

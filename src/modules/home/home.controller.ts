@@ -25,7 +25,7 @@ export class HomeController {
         @Query('locations') locations: string[],
         @Query('models') models: string[],
         @Query('types') types: string[]
-    ): Promise<NoticeListDto[]> {
+    ): Promise<NoticeListDto> {
         return this.homeService.getNoticeList(accessToken, page, row, start, end, regions, locations, models, types);
     }
 

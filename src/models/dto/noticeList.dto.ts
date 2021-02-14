@@ -1,7 +1,7 @@
-import { IsBoolean, IsDate, IsString, ValidateNested } from "class-validator";
+import { IsBoolean, IsDate, IsNumber, IsString, ValidateNested } from "class-validator";
 import { SPUDocument } from "../schemas/SPU.schema";
 
-export class NoticeListDto {
+class NoticeList {
     @IsString()
     notice_id: string;
 
@@ -25,4 +25,15 @@ export class NoticeListDto {
 
     @ValidateNested()
     packet: SPUDocument;
+}
+
+export class NoticeListDto {
+    @IsNumber()
+    total_filtered_count: number;
+
+    @IsNumber()
+    total_not_read_count: number;
+
+    @ValidateNested()
+    notice_list: NoticeList[];
 }
