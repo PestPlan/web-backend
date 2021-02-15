@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import * as constants from 'src/constants/constants';
 import { DeviceListDto } from 'src/models/dto/deviceList.dto';
 import { InfoDto } from 'src/models/dto/info.dto';
+import { NewReadStatusDto } from 'src/models/dto/newReadStatus.dto';
 import { NoticeListDto } from 'src/models/dto/noticeList.dto';
 import { DeviceDocument } from 'src/models/schemas/device.schema';
 import { NoticeDocument } from 'src/models/schemas/notice.schema';
@@ -57,7 +58,7 @@ export class HomeService {
     /**
      * getNoticeList - 사용자의 알람 정보 중 page에 해당하는 부분을 리턴한다.
      */
-    async getNoticeList(accessToken: string, page: number, row: number, start: Date, end: Date, regions: string[], locations: string[], models: string[], types: string[]): Promise<NoticeListDto[]> {
+    async getNoticeList(accessToken: string, page: number, row: number, start: Date, end: Date, regions: string[], locations: string[], models: string[], types: string[]): Promise<NoticeListDto> {
         const userData = await this.getUserByToken(accessToken);
 
         const filteredDeviceList = await this.deviceModel.find(
@@ -87,30 +88,38 @@ export class HomeService {
                 ...(types && { type: { $in: types } }),
             },
             {
-                _id: 0,
+                _id: 1,
                 device_id: 1,
                 created_at: 1,
                 type: 1,
+                is_read: 1,
+                packet: 1,
             },
             {
-                limit: row,
-                skip: row * (page -1),
                 sort: { created_at: -1 },
             }
         );
 
-        return filteredNoticeList.map(noticeData => {
-            const deviceData = filteredDeviceList.find(data => data._id.toString() === noticeData.device_id);
-            console.log(deviceData);
+        const limitedNoticeList = filteredNoticeList.slice(row * (page -1), row);
 
-            return {
-                created_at: noticeData.created_at,
-                type: noticeData.type,
-                region: deviceData.region,
-                location: deviceData.location,
-                model_name: deviceData.model_name,
-            };
-        });
+        return {
+            total_filtered_count: filteredNoticeList.length,
+            total_not_read_count: limitedNoticeList.filter(noticeData => noticeData.is_read === false).length,
+            notice_list: limitedNoticeList.map(noticeData => {
+                const deviceData = filteredDeviceList.find(data => data._id.toString() === noticeData.device_id);
+
+                return {
+                    notice_id: noticeData._id,
+                    created_at: noticeData.created_at,
+                    region: deviceData.region,
+                    location: deviceData.location,
+                    model_name: deviceData.model_name,
+                    type: noticeData.type,
+                    is_read: noticeData.is_read,
+                    packet: noticeData.packet,
+                };
+            })
+        }
     }
 
     /**
@@ -151,4 +160,11 @@ export class HomeService {
     //         },
     //     });
     // }
+
+    /**
+     * updateNoticeReadStatus - notices collection에서 is_read 값을 false에서 true로 업데이트한다.
+     */
+    async updateNoticeReadStatus(noticeId: string, newReadStatus: NewReadStatusDto) {
+        return await this.noticeModel.findByIdAndUpdate(noticeId, newReadStatus);
+    }
 }

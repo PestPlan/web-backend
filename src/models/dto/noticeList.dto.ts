@@ -1,11 +1,12 @@
-import { IsDate, IsString } from "class-validator";
+import { IsBoolean, IsDate, IsNumber, IsString, ValidateNested } from "class-validator";
+import { SPUDocument } from "../schemas/SPU.schema";
 
-export class NoticeListDto {
+class NoticeList {
+    @IsString()
+    notice_id: string;
+
     @IsDate()
     created_at: Date;
-
-    @IsString()
-    type: string;
 
     @IsString()
     region: string;
@@ -15,4 +16,24 @@ export class NoticeListDto {
 
     @IsString()
     model_name: string;
+
+    @IsString()
+    type: string;
+
+    @IsBoolean()
+    is_read: boolean;
+
+    @ValidateNested()
+    packet: SPUDocument;
+}
+
+export class NoticeListDto {
+    @IsNumber()
+    total_filtered_count: number;
+
+    @IsNumber()
+    total_not_read_count: number;
+
+    @ValidateNested()
+    notice_list: NoticeList[];
 }

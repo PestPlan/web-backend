@@ -1,5 +1,6 @@
 import { Document } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { SPUDocument, SPUSchema } from './SPU.schema';
 
 export type NoticeDocument = Notice & Document;
 
@@ -9,16 +10,16 @@ export class Notice {
     device_id: string;
 
     @Prop()
-    type: string;
+    created_at: Date;
 
     @Prop()
-    created_at: Date;
+    type: string;
 
     @Prop()
     is_read: boolean;
 
-    @Prop()
-    contents: string;
+    @Prop({ type: SPUSchema })
+    packet: SPUDocument;
 }
 
 export const NoticeSchema = SchemaFactory.createForClass(Notice);
