@@ -3,37 +3,37 @@ import { SPUDocument } from "../schemas/SPU.schema";
 
 class NoticeList {
     @IsString()
-    notice_id: string;
+    readonly notice_id: string;
 
     @IsDate()
-    created_at: Date;
+    readonly created_at: Date;
 
     @IsString()
-    region: string;
+    readonly region: string;
 
     @IsString()
-    location: string;
+    readonly location: string;
 
     @IsString()
-    model_name: string;
+    readonly model_name: string;
 
     @IsString()
-    type: string;
+    readonly type: string;
 
     @IsBoolean()
-    is_read: boolean;
+    readonly is_read: boolean;
 
     @ValidateNested()
-    packet: SPUDocument;
+    readonly packet: SPUDocument;
 }
 
 export class NoticeListDto {
     @IsNumber()
-    total_filtered_count: number;
+    readonly total_filtered_count: number;
 
     @IsNumber()
-    total_not_read_count: number;
+    readonly total_not_read_count: number;
 
     @ValidateNested()
-    notice_list: NoticeList[];
+    readonly notice_list: NoticeList[];
 }
