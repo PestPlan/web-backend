@@ -1,6 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import * as constants from 'src/constants/constants';
+import { DeviceDetailsDto } from 'src/models/dto/deviceDetails.dto';
 import { DeviceListDto } from 'src/models/dto/deviceList.dto';
 import { InfoDto } from 'src/models/dto/info.dto';
 import { NewReadStatusDto } from 'src/models/dto/newReadStatus.dto';
@@ -150,16 +151,19 @@ export class HomeService {
         );
     }
 
-    // /**
-    //  * getDeviceDetail - 기기의 세부 정보를 리턴한다.
-    //  */
-    // async getDeviceDetail(deviceId: number) {
-    //     return await this.deviceRepository.findOne({
-    //         where: {
-    //             id: deviceId,
-    //         },
-    //     });
-    // }
+    /**
+     * getDeviceDetail - 기기의 세부 정보를 리턴한다.
+     */
+    async getDeviceDetail(deviceId: string): Promise<DeviceDetailsDto> {
+        const deviceById = await this.deviceModel.findOne({ trap_id: deviceId });
+
+        const noticesByDeviceId = await this.noticeModel.find({ device_id: deviceById._id });
+
+        return {
+            device: deviceById,
+            notices: noticesByDeviceId,
+        };
+    }
 
     /**
      * updateNoticeReadStatus - notices collection에서 is_read 값을 false에서 true로 업데이트한다.

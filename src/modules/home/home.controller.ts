@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { HomeService } from './home.service';
+import { DeviceDetailsDto } from 'src/models/dto/deviceDetails.dto';
 import { DeviceListDto } from 'src/models/dto/deviceList.dto';
 import { InfoDto } from 'src/models/dto/info.dto';
 import { NewReadStatusDto } from 'src/models/dto/newReadStatus.dto';
@@ -41,9 +42,9 @@ export class HomeController {
         return this.homeService.getDeviceList(accessToken, page, row, regions, locations, models);
     }
 
-    @Get('detail')
-    getDeviceDetail(@Query('device_id') deviceId: number) {
-        // return this.homeService.getDeviceDetail(deviceId);
+    @Get('devices/details/:id')
+    getDeviceDetail(@Param('id') deviceId: string): Promise<DeviceDetailsDto> {
+        return this.homeService.getDeviceDetail(deviceId);
     }
 
     @Patch('notices/:id')
