@@ -11,5 +11,6 @@ import { packetsProviders } from '../../models/providers/packets.providers';
     imports: [DatabaseModule, AuthModule],
     controllers: [HomeController],
     providers: [HomeService, ...usersProviders, ...devicesProviders, ...packetsProviders],
+    exports: [HomeService],
 })
 export class HomeModule {}
