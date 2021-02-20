@@ -3,8 +3,7 @@ import { HomeService } from './home.service';
 import { DeviceDetailsDto } from 'src/models/dto/deviceDetails.dto';
 import { DeviceListDto } from 'src/models/dto/deviceList.dto';
 import { InfoDto } from 'src/models/dto/info.dto';
-import { NewReadStatusDto } from 'src/models/dto/newReadStatus.dto';
-import { NoticeListDto } from 'src/models/dto/noticeList.dto';
+import { PacketListDto } from 'src/models/dto/packetList.dto';
 
 @Controller('home')
 export class HomeController {
@@ -16,7 +15,7 @@ export class HomeController {
     }
 
     @Get('notices')
-    getNoticeList(
+    getPacketList(
         @Query('access_token') accessToken: string,
         @Query('page') page: number,
         @Query('row') row: number,
@@ -26,8 +25,8 @@ export class HomeController {
         @Query('locations') locations: string[],
         @Query('models') models: string[],
         @Query('types') types: string[]
-    ): Promise<NoticeListDto> {
-        return this.homeService.getNoticeList(accessToken, page, row, start, end, regions, locations, models, types);
+    ): Promise<PacketListDto> {
+        return this.homeService.getPacketList(accessToken, page, row, start, end, regions, locations, models, types);
     }
 
     @Get('devices')
@@ -43,12 +42,12 @@ export class HomeController {
     }
 
     @Get('devices/details/:id')
-    getDeviceDetail(@Param('id') deviceId: string): Promise<DeviceDetailsDto> {
-        return this.homeService.getDeviceDetail(deviceId);
+    getDeviceDetails(@Param('id') deviceId: string): Promise<DeviceDetailsDto> {
+        return this.homeService.getDeviceDetails(deviceId);
     }
 
-    @Patch('notices/:id')
-    updateNoticeReadStatus(@Param('id') noticeId: string, @Body('data') newReadStatus: NewReadStatusDto) {
-        return this.homeService.updateNoticeReadStatus(noticeId, newReadStatus);
+    @Patch('notices/read/:id')
+    updatePacketReadStatus(@Param('id') packetId: string) {
+        return this.homeService.updatePacketReadStatus(packetId);
     }
 }

@@ -10,5 +10,5 @@ export class InfoDto {
     readonly device_cnt: number;
 
     @IsNumber()
-    readonly notice_cnt: number;
+    readonly packet_cnt: number;
 }

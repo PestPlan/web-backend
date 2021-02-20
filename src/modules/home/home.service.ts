@@ -4,32 +4,34 @@ import * as constants from 'src/constants/constants';
 import { DeviceDetailsDto } from 'src/models/dto/deviceDetails.dto';
 import { DeviceListDto } from 'src/models/dto/deviceList.dto';
 import { InfoDto } from 'src/models/dto/info.dto';
-import { NewReadStatusDto } from 'src/models/dto/newReadStatus.dto';
-import { NoticeListDto } from 'src/models/dto/noticeList.dto';
-import { DeviceDocument } from 'src/models/schemas/device.schema';
-import { NoticeDocument } from 'src/models/schemas/notice.schema';
-import { UserDocument } from 'src/models/schemas/user.schema';
+import { PacketListDto } from 'src/models/dto/packetList.dto';
+import { UserDto } from 'src/models/dto/user.dto';
+import { Device } from 'src/models/entities/device.entity';
+import { User } from 'src/models/entities/user.entity';
+import { PacketDocument } from 'src/models/schemas/packet.schema';
 import { AuthService } from 'src/modules/auth/auth.service';
 
 @Injectable()
 export class HomeService {
     constructor(
-        @Inject(constants.USER_MODEL) private userModel: Model<UserDocument>,
-        @Inject(constants.DEVICE_MODEL) private deviceModel: Model<DeviceDocument>,
-        @Inject(constants.NOTICE_MODEL) private noticeModel: Model<NoticeDocument>,
+        @Inject(constants.USER_PROVIDE) private userRepository: typeof User,
+        @Inject(constants.DEVICE_PROVIDE) private deviceRepository: typeof Device,
+        @Inject(constants.PACKET_PROVIDE) private pakcetModel: Model<PacketDocument>,
         private authService: AuthService,
     ) {}
 
     /**
-     * getUserData - 토큰에 저장된 사용자의 User model을 리턴한다.
+     * getUserByToken - 토큰에 저장된 사용자의 User model을 리턴한다.
      */
-    async getUserByToken(accessToken: string): Promise<UserDocument> {
+    async getUserByToken(accessToken: string): Promise<UserDto> {
         const { sub, username } = this.authService.decodeToken(accessToken);
         
         // token에 저장된 id와 username이 존재하는지 확인한다.
-        const user = await this.userModel.findOne({
-            _id: sub,
-            username,
+        const user = await this.userRepository.findOne({
+            where: {
+                id: sub,
+                username,
+            },
         });
         if (!user) {
             throw new NotFoundException('There has no username contained in the token you sent.');
@@ -39,85 +41,74 @@ export class HomeService {
     }
 
     /**
-     * getUserInfo - 토큰에 저장된 사용자의 정보를 리턴한다.
+     * getUserName - 토큰에 저장된 사용자의 정보를 리턴한다.
      */
     async getUserName(accessToken: string): Promise<InfoDto> {
-        const userData = await this.getUserByToken(accessToken);
+        const user = await this.getUserByToken(accessToken);
 
-        const deviceList = await this.deviceModel.find({ user_id: userData._id });
-        const deviceIds = deviceList.map(deviceDocument => deviceDocument._id);
+        const deviceList = await this.deviceRepository.findAll({
+            raw: true,
+            attributes: ['id'],
+            where: {
+                user_id: user.id,
+            },
+        });
+        const trapIds = deviceList.map(device => device.trap_id);
 
-        const noticeCount = await this.noticeModel.countDocuments({ device_id: { $in: deviceIds } }, null);
+        const packetCount = await this.pakcetModel.countDocuments({ 'SPU.MPU.trapId': trapIds });
 
         return {
-            username: userData.username,
-            device_cnt: deviceIds.length,
-            notice_cnt: noticeCount,
+            username: user.username,
+            device_cnt: trapIds.length,
+            packet_cnt: packetCount,
         };
     }
 
     /**
-     * getNoticeList - 사용자의 알람 정보 중 page에 해당하는 부분을 리턴한다.
+     * getPacketList - 사용자의 알람 정보 중 page에 해당하는 부분을 리턴한다.
      */
-    async getNoticeList(accessToken: string, page: number, row: number, start: Date, end: Date, regions: string[], locations: string[], models: string[], types: string[]): Promise<NoticeListDto> {
-        const userData = await this.getUserByToken(accessToken);
+    async getPacketList(accessToken: string, page: number, row: number, start: Date, end: Date, regions: string[], locations: string[], models: string[], types: string[]): Promise<PacketListDto> {
+        const filteredDeviceList = await this.getDeviceList(accessToken, page, row, regions, locations, models);
+        const filteredTrapIds = filteredDeviceList.map(device => device.trap_id);
+        
+        const timeQuery = {};
+        if(start.toString() !== "Invalid Date") timeQuery["$gte"] = start;
+        if(end.toString() !== "Invalid Date") timeQuery["$lte"] = end;
 
-        const filteredDeviceList = await this.deviceModel.find(
+        const filteredPacketList = await this.pakcetModel.find(
             {
-                user_id: userData._id,
-                ...(regions && { region: { $in: regions } }),
-                ...(locations && { location: { $in: locations } }),
-                ...(models && { model_name: { $in: models } }),
+                'SPU.MPU.trapId': filteredTrapIds,
+                'SPU.MPU.time': timeQuery,
             },
             {
                 _id: 1,
-                region: 1,
-                location: 1,
-                model_name: 1,
-            }
-        );
-        const filteredDeviceIds = filteredDeviceList.map(deviceDocument => deviceDocument._id);
-
-        const createdAtQuery = {};
-        if(start.toString() !== "Invalid Date") createdAtQuery["$gte"] = start;
-        if(end.toString() !== "Invalid Date") createdAtQuery["$lte"] = end;
-
-        const filteredNoticeList = await this.noticeModel.find(
-            {
-                device_id: { $in: filteredDeviceIds },
-                created_at: createdAtQuery,
-                ...(types && { type: { $in: types } }),
-            },
-            {
-                _id: 1,
-                device_id: 1,
-                created_at: 1,
-                type: 1,
                 is_read: 1,
-                packet: 1,
+                SPU: 1,
             },
             {
-                sort: { created_at: -1 },
+                sort: { 'SPU.MPU.time': -1 },
             }
         );
+        // ...(types && { type: { $in: types } }),
 
-        const limitedNoticeList = filteredNoticeList.slice(row * (page -1), row);
+        const limitedPacketList = filteredPacketList.slice(row * (page -1), row);
 
         return {
-            total_filtered_count: filteredNoticeList.length,
-            total_not_read_count: limitedNoticeList.filter(noticeData => noticeData.is_read === false).length,
-            notice_list: limitedNoticeList.map(noticeData => {
-                const deviceData = filteredDeviceList.find(data => data._id.toString() === noticeData.device_id);
+            total_filtered_count: filteredPacketList.length,
+            total_not_read_count: limitedPacketList.filter(packet => !packet.is_read).length,
+            packet_list: limitedPacketList.map(packet => {
+                const { SPU: { MPU } } = packet;
+                const device = filteredDeviceList.find(device => device.trap_id === MPU.trapId);
 
                 return {
-                    notice_id: noticeData._id,
-                    created_at: noticeData.created_at,
-                    region: deviceData.region,
-                    location: deviceData.location,
-                    model_name: deviceData.model_name,
-                    type: noticeData.type,
-                    is_read: noticeData.is_read,
-                    packet: noticeData.packet,
+                    packet_id: packet._id,
+                    created_at: MPU.time,
+                    region: device.region,
+                    location: device.location,
+                    model_name: device.model_name,
+                    type: MPU.dataType,
+                    is_read: packet.is_read,
+                    packet: packet.SPU,
                 };
             })
         }
@@ -127,48 +118,53 @@ export class HomeService {
      * getDeviceList - 사용자의 기기 정보 중 page에 해당하는 부분을 리턴한다.
      */
     async getDeviceList(accessToken: string, page: number, row: number, regions: string[], locations: string[], models: string[]): Promise<DeviceListDto[]> {
-        const userData = await this.getUserByToken(accessToken);
+        const user = await this.getUserByToken(accessToken);
 
-        return await this.deviceModel.find(
-            {
-                user_id: userData._id,
-                ...(regions && { region: { $in: regions } }),
-                ...(locations && { location: { $in: locations } }),
-                ...(models && { model_name: { $in: models } }),
+        return await this.deviceRepository.findAll({
+            raw: true,
+            attributes: ['trap_id', 'region', 'location', 'model_name'],
+            where: {
+                user_id: user.id,
+                ...(regions && { region: regions }),
+                ...(locations && { location: locations }),
+                ...(models && { model_name: models }),
             },
-            {
-                _id: 0,
-                trap_id: 1,
-                region: 1,
-                location: 1,
-                model_name: 1,
-            },
-            {
-                limit: row,
-                skip: row * (page -1),
-                sort: { created_at: -1 },
-            }
-        );
+            offset: row * (page -1),
+            limit: row,
+            order: [['created_at', 'DESC']],
+        });
     }
 
     /**
-     * getDeviceDetail - 기기의 세부 정보를 리턴한다.
+     * getDeviceDetails - 기기의 세부 정보를 리턴한다.
      */
-    async getDeviceDetail(deviceId: string): Promise<DeviceDetailsDto> {
-        const deviceById = await this.deviceModel.findOne({ trap_id: deviceId });
+    async getDeviceDetails(deviceId: string): Promise<DeviceDetailsDto> {
+        const deviceById = await this.deviceRepository.findOne({
+            where: {
+                trap_id: deviceId,
+            },
+        });
 
-        const noticesByDeviceId = await this.noticeModel.find({ device_id: deviceById._id });
+        const packetsByDeviceId = await this.pakcetModel.find(
+            {
+                device_id: deviceById.id,
+            },
+            { },
+            {
+                sort: { created_at: -1 },
+            }
+        );
 
         return {
             device: deviceById,
-            notices: noticesByDeviceId,
+            packets: packetsByDeviceId,
         };
     }
 
     /**
-     * updateNoticeReadStatus - notices collection에서 is_read 값을 false에서 true로 업데이트한다.
+     * updatePacketReadStatus - packets collection에서 is_read 값을 false에서 true로 업데이트한다.
      */
-    async updateNoticeReadStatus(noticeId: string, newReadStatus: NewReadStatusDto) {
-        return await this.noticeModel.findByIdAndUpdate(noticeId, newReadStatus);
+    async updatePacketReadStatus(packetId: string) {
+        return await this.pakcetModel.findByIdAndUpdate(packetId, { is_read: true });
     }
 }

@@ -1,7 +1,7 @@
-import { IsString } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
 export class DeviceListDto {
-    @IsString()
+    @IsNumber()
     readonly trap_id: string;
 
     @IsString()

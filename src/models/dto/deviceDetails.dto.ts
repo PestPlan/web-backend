@@ -1,11 +1,11 @@
 import { ValidateNested } from "class-validator";
-import { DeviceDocument } from "../schemas/device.schema";
-import { NoticeDocument } from "../schemas/notice.schema";
+import { Device } from "../entities/device.entity";
+import { PacketDocument } from "../schemas/packet.schema";
 
 export class DeviceDetailsDto {
     @ValidateNested()
-    readonly device: DeviceDocument;
+    readonly device: Device;
 
     @ValidateNested()
-    readonly notices: NoticeDocument[];
+    readonly packets: PacketDocument[];
 }
