@@ -1,6 +1,6 @@
-export const DATABASE_CONNECTION: string = 'DATABASE_CONNECTION';
-export const DATABASE_URL: string = 'mongodb://localhost:27017/pest';
-
-export const USER_MODEL: string = 'User';
-export const DEVICE_MODEL: string = 'Device';
-export const NOTICE_MODEL: string = 'Notice';
+// provide
+export const MARIADB_PROVIDE: string = 'SEQUELIZE';
+export const MONGODB_PROVIDE: string = 'DATABASE_CONNECTION';
+export const USER_PROVIDE: string = 'UserRepository';
+export const DEVICE_PROVIDE: string = 'DeviceRepository';
+export const PACKET_PROVIDE: string = 'Packet';

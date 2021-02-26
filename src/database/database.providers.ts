@@ -1,17 +1,23 @@
+import { Sequelize } from 'sequelize-typescript';
 import * as mongoose from 'mongoose';
-import { DATABASE_CONNECTION, DATABASE_URL } from '../constants/constants';
+import { MARIADB_PROVIDE, MONGODB_PROVIDE } from 'src/constants/constants';
+import { mariaDBConfig, mongoDBOptions, mongoDBURI } from './database.config';
+import { Device } from 'src/models/entities/device.entity';
+import { User } from 'src/models/entities/user.entity';
 
 export const databaseProviders = [
     {
-        provide: DATABASE_CONNECTION,
-        useFactory: (): Promise<typeof mongoose> =>
-            mongoose.connect(DATABASE_URL,
-                {
-                    useNewUrlParser: true,
-                    useUnifiedTopology: true,
-                    useCreateIndex: true,
-                    useFindAndModify: false
-                }
-            )
-    }
+        provide: MARIADB_PROVIDE,
+        useFactory: async (): Promise<Sequelize> => {
+            const sequelize: Sequelize = new Sequelize(mariaDBConfig);
+            sequelize.addModels([Device, User]);
+            await sequelize.sync();
+            return sequelize;
+        },
+    },
+    {
+        provide: MONGODB_PROVIDE,
+        useFactory: (): Promise<typeof mongoose> => 
+            mongoose.connect(mongoDBURI, mongoDBOptions)
+    },
 ];

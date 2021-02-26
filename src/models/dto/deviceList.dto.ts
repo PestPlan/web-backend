@@ -1,15 +1,15 @@
-import { IsString } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
 export class DeviceListDto {
-    @IsString()
-    trap_id: string;
+    @IsNumber()
+    readonly trap_id: string;
 
     @IsString()
-    region: string;
+    readonly region: string;
 
     @IsString()
-    location: string;
+    readonly location: string;
 
     @IsString()
-    model_name: string;
+    readonly model_name: string;
 }
