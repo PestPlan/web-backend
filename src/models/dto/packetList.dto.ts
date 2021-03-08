@@ -1,5 +1,5 @@
 import { IsBoolean, IsDate, IsNumber, IsString, ValidateNested } from "class-validator";
-import { SPUDocument } from "../schemas/SPU.schema";
+import { SPU } from "../schemas/SPU.schema";
 
 class PacketList {
     @IsString()
@@ -24,7 +24,7 @@ class PacketList {
     readonly is_read: boolean;
 
     @ValidateNested()
-    readonly packet: SPUDocument;
+    readonly packet: SPU;
 }
 
 export class PacketListDto {

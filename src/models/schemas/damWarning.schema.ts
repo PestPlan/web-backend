@@ -1,18 +1,13 @@
-import { Document } from 'mongoose';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Schema } from 'mongoose';
 
-export type DamWarningDocument = DamWarning & Document;
-
-@Schema({ versionKey: false })
-export class DamWarning {
-    @Prop()
-    temperature: string;
-
-    @Prop()
-    vibration: string;
-
-    @Prop()
-    power: string;
+export interface DamWarning {
+    readonly temperature: string;
+    readonly vibration: string;
+    readonly power: string;
 }
 
-export const DamWarningSchema = SchemaFactory.createForClass(DamWarning);
+export const DamWarningSchema = new Schema({
+    temperature: String,
+    vibration: String,
+    power: String,
+});

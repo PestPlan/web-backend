@@ -1,24 +1,17 @@
-import { Document } from 'mongoose';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Schema } from 'mongoose';
 
-export type MouseWarningDocument = MouseWarning & Document;
-
-@Schema({ versionKey: false })
-export class MouseWarning {
-    @Prop()
-    inclination: string;
-
-    @Prop()
-    power: string;
-
-    @Prop()
-    voltage: string;
-
-    @Prop()
-    flag: string;
-
-    @Prop()
-    capture: string;
+export interface MouseWarning {
+    readonly inclination: string;
+    readonly power: string;
+    readonly voltage: string;
+    readonly flag: string;
+    readonly capture: string;
 }
 
-export const MouseWarningSchema = SchemaFactory.createForClass(MouseWarning);
+export const MouseWarningSchema = new Schema({
+    inclination: String,
+    power: String,
+    voltage: String,
+    flag: String,
+    capture: String,
+});

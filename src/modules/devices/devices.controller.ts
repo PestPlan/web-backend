@@ -16,11 +16,11 @@ export class DevicesController {
         @Query('locations') locations: string[],
         @Query('models') models: string[]
     ): Promise<DeviceListDto[]> {
-        return this.devicesService.getDeviceList(accessToken, page, row, regions, locations, models);
+        return this.devicesService.getDeviceList(accessToken, regions, locations, models, page, row);
     }
 
     @Get('/details/:id')
-    getDeviceDetails(@Param('id') deviceId: string): Promise<DeviceDetailsDto> {
-        return this.devicesService.getDeviceDetails(deviceId);
+    getDeviceDetails(@Param('id') deviceId: string, @Query('page') page: number, @Query('row') row: number): Promise<DeviceDetailsDto> {
+        return this.devicesService.getDeviceDetails(deviceId, page, row);
     }
 }

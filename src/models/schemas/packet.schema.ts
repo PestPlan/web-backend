@@ -1,16 +1,12 @@
-import { Document } from 'mongoose';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { SPUDocument, SPUSchema } from './SPU.schema';
+import { Document, Schema } from 'mongoose';
+import { SPU, SPUSchema } from './SPU.schema';
 
-export type PacketDocument = Packet & Document;
-
-@Schema({ versionKey: false })
-export class Packet {
-    @Prop()
-    is_read: boolean;
-
-    @Prop({ type: SPUSchema })
-    SPU: SPUDocument;
+export interface Packet extends Document {
+    readonly is_read: boolean;
+    readonly SPU: SPU;
 }
 
-export const PacketSchema = SchemaFactory.createForClass(Packet);
+export const PacketSchema = new Schema({
+    is_read: Boolean,
+    SPU: SPUSchema,
+});

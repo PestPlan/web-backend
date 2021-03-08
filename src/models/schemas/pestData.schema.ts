@@ -1,27 +1,19 @@
-import { Document } from 'mongoose';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Schema } from 'mongoose';
 
-export type PestDataDocument = PestData & Document;
-
-@Schema({ versionKey: false })
-export class PestData {
-    @Prop()
-    capture: number;
-
-    @Prop()
-    temperature: string;
-
-    @Prop()
-    sensorDuty: string;
-
-    @Prop()
-    panDuty: string;
-
-    @Prop()
-    panRpm: number;
-
-    @Prop()
-    statusCode: number;
+export interface PestData {
+    readonly capture: number;
+    readonly temperature: string;
+    readonly sensorDuty: string;
+    readonly panDuty: string;
+    readonly panRpm: number;
+    readonly statusCode: number;
 }
 
-export const PestDataSchema = SchemaFactory.createForClass(PestData);
+export const PestDataSchema = new Schema({
+    capture: Number,
+    temperature: String,
+    sensorDuty: String,
+    panDuty: String,
+    panRpm: Number,
+    statusCode: Number,
+});

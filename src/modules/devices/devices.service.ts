@@ -4,21 +4,21 @@ import * as constants from 'src/constants/constants';
 import { DeviceDetailsDto } from 'src/models/dto/deviceDetails.dto';
 import { DeviceListDto } from 'src/models/dto/deviceList.dto';
 import { Device } from 'src/models/entities/device.entity';
+import { Packet } from 'src/models/schemas/packet.schema';
 import { HomeService } from 'src/modules/home/home.service';
-import { PacketDocument } from 'src/models/schemas/packet.schema';
 
 @Injectable()
 export class DevicesService {
     constructor(
         @Inject(constants.DEVICE_PROVIDE) private deviceRepository: typeof Device,
-        @Inject(constants.PACKET_PROVIDE) private pakcetModel: Model<PacketDocument>,
+        @Inject(constants.PACKET_PROVIDE) private packetModel: Model<Packet>,
         private homeService: HomeService,
     ) {}
 
     /**
      * getDeviceList - 사용자의 기기 정보 중 page에 해당하는 부분을 리턴한다.
      */
-    async getDeviceList(accessToken: string, page: number, row: number, regions: string[], locations: string[], models: string[]): Promise<DeviceListDto[]> {
+    async getDeviceList(accessToken: string, regions: string[], locations: string[], models: string[], page?: number, row?: number): Promise<DeviceListDto[]> {
         const user = await this.homeService.getUserByToken(accessToken);
 
         return await this.deviceRepository.findAll({
@@ -30,8 +30,12 @@ export class DevicesService {
                 ...(locations && { location: locations }),
                 ...(models && { model_name: models }),
             },
-            offset: row * (page -1),
-            limit: row,
+            ...(row !== undefined &&
+                {
+                    offset: row * (page -1),
+                    limit: row,
+                }
+            ),
             order: [['created_at', 'DESC']],
         });
     }
@@ -39,14 +43,14 @@ export class DevicesService {
     /**
      * getDeviceDetails - 기기의 세부 정보를 리턴한다.
      */
-    async getDeviceDetails(deviceId: string): Promise<DeviceDetailsDto> {
+    async getDeviceDetails(deviceId: string, page: number, row: number): Promise<DeviceDetailsDto> {
         const deviceById = await this.deviceRepository.findOne({
             where: {
                 trap_id: deviceId,
             },
         });
 
-        const packetsByDeviceId = await await this.pakcetModel.find(
+        const packetsByDeviceId = await await this.packetModel.find(
             {
                 'SPU.MPU.trapId': deviceById.trap_id,
             },
@@ -56,9 +60,12 @@ export class DevicesService {
             },
         );
 
+        const packets = packetsByDeviceId.slice(row * (page -1), row * page);
+
         return {
             device: deviceById,
-            packets: packetsByDeviceId,
+            packets,
+            packetCount: packetsByDeviceId.length,
         };
     }
 }

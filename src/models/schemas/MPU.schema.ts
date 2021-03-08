@@ -1,56 +1,40 @@
-import { Document } from 'mongoose';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { PestDataDocument, PestDataSchema } from './pestData.schema';
-import { MousceCycleDocument, MouseCycleSchema } from './mouseCycle.schema';
-import { MouseWarningDocument, MouseWarningSchema } from './mouseWarning.schema';
-import { SnapShotDocument, SnapShotSchema } from './snapShot.schema';
-import { DamWarningDocument, DamWarningSchema } from './damWarning.schema';
+import { Schema } from 'mongoose';
+import { PestData, PestDataSchema } from './pestData.schema';
+import { MouseCycle, MouseCycleSchema } from './mouseCycle.schema';
+import { MouseWarning, MouseWarningSchema } from './mouseWarning.schema';
+import { SnapShot, SnapShotSchema } from './snapShot.schema';
+import { DamWarning, DamWarningSchema } from './damWarning.schema';
 
-export type MPUDocument = MPU & Document;
-
-@Schema({ versionKey: false })
-class MPU {
-    @Prop()
-    MPUIndex: string;
-
-    @Prop()
-    time: string;
-
-    @Prop()
-    rssi: number;
-
-    @Prop()
-    device: boolean;
-
-    @Prop()
-    trapId: string;
-
-    @Prop()
-    trapIdType: string;
-
-    @Prop()
-    cmd: string;
-
-    @Prop()
-    item: string;
-
-    @Prop()
-    dataType: string;
-
-    @Prop({ type: PestDataSchema })
-    pest: PestDataDocument;
-
-    @Prop({ type: MouseCycleSchema })
-    mouseCycle: MousceCycleDocument;
-
-    @Prop({ type: MouseWarningSchema })
-    mouseWarning: MouseWarningDocument;
-
-    @Prop({ type: SnapShotSchema })
-    snapShot: SnapShotDocument;
-
-    @Prop({ type: DamWarningSchema })
-    damWarning: DamWarningDocument;
+export interface MPU {
+    readonly MPUIndex: string;
+    readonly time: string;
+    readonly rssi: number;
+    readonly device: boolean;
+    readonly trapId: string;
+    readonly trapIdType: string;
+    readonly cmd: string;
+    readonly item: string;
+    readonly dataType: string;
+    readonly pest: PestData;
+    readonly mouseCycle: MouseCycle;
+    readonly mouseWarning: MouseWarning;
+    readonly snapShot: SnapShot;
+    readonly damWarning: DamWarning;
 }
 
-export const MPUSchema = SchemaFactory.createForClass(MPU);
+export const MPUSchema = new Schema({
+    MPUIndex: String,
+    time: String,
+    rssi: Number,
+    device: Boolean,
+    trapId: String,
+    trapIdType: String,
+    cmd: String,
+    item: String,
+    dataType: String,
+    pest: PestDataSchema,
+    mouseCycle: MouseCycleSchema,
+    mouseWarning: MouseWarningSchema,
+    snapShot: SnapShotSchema,
+    damWarning: DamWarningSchema,
+});

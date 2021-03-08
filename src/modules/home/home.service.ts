@@ -5,7 +5,7 @@ import { InfoDto } from 'src/models/dto/info.dto';
 import { UserDto } from 'src/models/dto/user.dto';
 import { Device } from 'src/models/entities/device.entity';
 import { User } from 'src/models/entities/user.entity';
-import { PacketDocument } from 'src/models/schemas/packet.schema';
+import { Packet } from 'src/models/schemas/packet.schema';
 import { AuthService } from 'src/modules/auth/auth.service';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class HomeService {
     constructor(
         @Inject(constants.USER_PROVIDE) private userRepository: typeof User,
         @Inject(constants.DEVICE_PROVIDE) private deviceRepository: typeof Device,
-        @Inject(constants.PACKET_PROVIDE) private pakcetModel: Model<PacketDocument>,
+        @Inject(constants.PACKET_PROVIDE) private packetModel: Model<Packet>,
         private authService: AuthService,
     ) {}
 
@@ -45,15 +45,14 @@ export class HomeService {
 
         const deviceList = await this.deviceRepository.findAll({
             raw: true,
-            attributes: ['id'],
             where: {
                 user_id: user.id,
             },
         });
         const trapIds = deviceList.map(device => device.trap_id);
-
-        const packetCount = await this.pakcetModel.countDocuments({ 'SPU.MPU.trapId': trapIds });
-
+        
+        const packetCount = await this.packetModel.countDocuments({ 'SPU.MPU.trapId': trapIds });
+        
         return {
             username: user.username,
             device_cnt: trapIds.length,

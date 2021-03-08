@@ -1,28 +1,20 @@
-import { Document } from 'mongoose';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { MPUDocument, MPUSchema } from './MPU.schema';
+import { Schema } from 'mongoose';
+import { MPU, MPUSchema } from './MPU.schema';
 
-export type SPUDocument = SPU & Document;
-
-@Schema({ versionKey: false })
-export class SPU {
-    @Prop()
-    SPUIndex: string;
-
-    @Prop()
-    rawData: string;
-
-    @Prop()
-    ver: string;
-
-    @Prop()
-    damId: string;
-
-    @Prop()
-    damIdType: string;
-
-    @Prop({ type: MPUSchema })
-    MPU: MPUDocument;
+export interface SPU {
+    readonly SPUIndex: string;
+    readonly rawData: string;
+    readonly ver: string;
+    readonly damId: string;
+    readonly damIdType: string;
+    readonly MPU: MPU;
 }
 
-export const SPUSchema = SchemaFactory.createForClass(SPU);
+export const SPUSchema = new Schema({
+    SPUIndex: String,
+    rawData: String,
+    ver: String,
+    damId: String,
+    damIdType: String,
+    MPU: MPUSchema,
+})

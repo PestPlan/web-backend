@@ -1,21 +1,15 @@
-import { Document } from 'mongoose';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Schema } from 'mongoose';
 
-export type MousceCycleDocument = MouseCycle & Document;
-
-@Schema({ versionKey: false })
-export class MouseCycle {
-    @Prop()
-    capture: number;
-
-    @Prop()
-    voltage: string;
-
-    @Prop()
-    rssi: number;
-
-    @Prop()
-    statusCode: number;
+export interface MouseCycle {
+    readonly capture: number;
+    readonly voltage: string;
+    readonly rssi: number;
+    readonly statusCode: number;
 }
 
-export const MouseCycleSchema = SchemaFactory.createForClass(MouseCycle);
+export const MouseCycleSchema = new Schema({
+    capture: Number,
+    voltage: String,
+    rssi: Number,
+    statusCode: Number,
+});
