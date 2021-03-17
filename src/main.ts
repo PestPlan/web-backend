@@ -4,7 +4,6 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, { cors: true });
-
     /**
      * whitelist: If set to true, validator will strip validated (returned) object of any properties that do not use any validation decorators.
      * forbidNonWhitelisted: If set to true, instead of stripping non-whitelisted properties validator will throw an exception.
@@ -22,6 +21,6 @@ async function bootstrap() {
             },
         }),
     );
-    await app.listen(4000);
+    await app.listen(process.env.PORT || 4000);
 }
 bootstrap();
