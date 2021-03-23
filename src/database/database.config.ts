@@ -14,7 +14,7 @@ export const mariaDBConfig: SequelizeOptions = {
     database: process.env.MARIADB_DATABASE,
     define: {
         timestamps: false,
-    }
+    },
 };
 
 // MongoDB
