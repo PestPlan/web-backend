@@ -25,7 +25,7 @@ async function bootstrap() {
         Logger.warn(err, 'LOGGER', false);
     });
     app.listen(process.env.PORT || 3333, '0.0.0.0', () => {
-        Logger.log(`server listening on ${process.env.PORT}`);
+        Logger.warn(`server listening on port: ${process.env.PORT}`);
     });
 }
 bootstrap();

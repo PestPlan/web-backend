@@ -13,6 +13,7 @@
     "start:debug": "nodemon --config nodemon-debug.json",
     "start:prod": "node dist/main.js",
     "prestart:prod": "rimraf dist && npm run build",
+    "web": "npm run start:prod",
     "postinstall": "npm run prestart:prod",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
