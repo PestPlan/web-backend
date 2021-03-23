@@ -24,6 +24,7 @@ async function bootstrap() {
     process.on('uncaughtException', (err) => {
         Logger.warn(err, 'LOGGER', false);
     });
-    await app.listen(process.env.PORT || 4000);
+    const port: number = parseInt(process.env.PORT as string, 10);
+    await app.listen(port, '0.0.0.0');
 }
 bootstrap();
