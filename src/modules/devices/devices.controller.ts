@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { DevicesService } from './devices.service';
-import { DeviceDetailsDto } from 'src/models/dto/deviceDetails.dto';
-import { DeviceListDto } from 'src/models/dto/deviceList.dto';
+import { DeviceDetailsDto } from '../../models/dto/deviceDetails.dto';
+import { DeviceListDto } from '../../models/dto/deviceList.dto';
 
 @Controller('devices')
 export class DevicesController {
@@ -14,7 +14,7 @@ export class DevicesController {
         @Query('row') row: number,
         @Query('regions') regions: string[],
         @Query('locations') locations: string[],
-        @Query('models') models: string[]
+        @Query('models') models: string[],
     ): Promise<DeviceListDto[]> {
         return this.devicesService.getDeviceList(accessToken, regions, locations, models, page, row);
     }

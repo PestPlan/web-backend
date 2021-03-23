@@ -8,13 +8,7 @@ import { LoginModule } from './modules/login/login.module';
 import { PacketsModule } from './modules/packets/packets.module';
 
 @Module({
-    imports: [
-        AuthModule,
-        HomeModule,
-        LoginModule,
-        PacketsModule,
-        DevicesModule,
-    ],
+    imports: [AuthModule, HomeModule, LoginModule, PacketsModule, DevicesModule],
     controllers: [AppController],
     providers: [AppService],
 })

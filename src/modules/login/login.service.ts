@@ -1,17 +1,13 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import * as constants from 'src/constants/constants';
-import { AccessTokenDto } from 'src/models/dto/accessToken.dto';
-import { SignDataDto } from 'src/models/dto/signData.dto';
-import { User } from 'src/models/entities/user.entity';
-import { AuthService } from 'src/modules/auth/auth.service';
+import { AccessTokenDto } from '../../models/dto/accessToken.dto';
+import { SignDataDto } from '../../models/dto/signData.dto';
+import { User } from '../../models/entities/user.entity';
+import { AuthService } from '../../modules/auth/auth.service';
 
 @Injectable()
 export class LoginService {
-    constructor(
-        @Inject(constants.USER_PROVIDE) private userRepository: typeof User,
-        private authService: AuthService,
-    ) {}
+    constructor(@Inject('UserRepository') private userRepository: typeof User, private authService: AuthService) {}
 
     /**
      * create - sign-up
@@ -20,12 +16,14 @@ export class LoginService {
         const { username, password } = signUpData;
 
         // 같은 username이 존재하는지 확인한다.
-        if (await this.userRepository.count({
-                where: {
-                    username
-                },
-            })
-            .then(count=> count !== 0)
+        if (
+            await this.userRepository
+                .count({
+                    where: {
+                        username,
+                    },
+                })
+                .then((count) => count !== 0)
         ) {
             throw new NotFoundException('Same username is exist. And we should change this exception since this is not a NotFoundException!!!!');
         }
@@ -34,7 +32,7 @@ export class LoginService {
         const salt = await bcrypt.genSalt();
         const hashedPwd = await bcrypt.hash(password, salt);
         const newUser = {
-            id: await this.userRepository.count() + 1,
+            id: (await this.userRepository.count()) + 1,
             username,
             password: hashedPwd,
         };
@@ -54,7 +52,7 @@ export class LoginService {
                 username,
             },
         });
-        if(user === null) {
+        if (user === null) {
             throw new NotFoundException('You should sign up first!');
         }
 

@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { LoginService } from './login.service';
-import { AccessTokenDto } from 'src//models/dto/accessToken.dto';
-import { SignDataDto } from 'src/models/dto/signData.dto';
+import { AccessTokenDto } from '../../models/dto/accessToken.dto';
+import { SignDataDto } from '../../models/dto/signData.dto';
 
 @Controller('login')
 export class LoginController {

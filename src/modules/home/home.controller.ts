@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { HomeService } from './home.service';
-import { InfoDto } from 'src/models/dto/info.dto';
+import { InfoDto } from '../../models/dto/info.dto';
 
 @Controller('home')
 export class HomeController {

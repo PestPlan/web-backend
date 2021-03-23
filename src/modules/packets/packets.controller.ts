@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { PacketsService } from './packets.service';
-import { PacketListDto } from 'src/models/dto/packetList.dto';
+import { PacketListDto } from '../../models/dto/packetList.dto';
 
 @Controller('packets')
 export class PacketsController {
@@ -16,7 +16,7 @@ export class PacketsController {
         @Query('regions') regions: string[],
         @Query('locations') locations: string[],
         @Query('models') models: string[],
-        @Query('types') types: string[]
+        @Query('types') types: string[],
     ): Promise<PacketListDto> {
         return this.packetsService.getPacketList(accessToken, page, row, start, end, regions, locations, models, types);
     }

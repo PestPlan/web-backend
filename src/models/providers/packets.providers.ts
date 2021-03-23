@@ -1,11 +1,10 @@
-import { Connection } from "mongoose";
-import { MONGODB_PROVIDE, PACKET_PROVIDE } from "src/constants/constants";
+import { Connection } from 'mongoose';
 import { PacketSchema } from '../schemas/packet.schema';
 
 export const packetsProviders = [
     {
-        provide: PACKET_PROVIDE,
-        useFactory: (connection: Connection) => connection.model(PACKET_PROVIDE, PacketSchema),
-        inject: [MONGODB_PROVIDE],
-    }
-]
+        provide: 'Packet',
+        useFactory: (connection: Connection) => connection.model('Packet', PacketSchema),
+        inject: ['DATABASE_CONNECTION'],
+    },
+];
