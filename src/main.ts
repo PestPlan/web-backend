@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
@@ -21,6 +21,9 @@ async function bootstrap() {
             },
         }),
     );
+    process.on('uncaughtException', (err) => {
+        Logger.warn(err, 'LOGGER', false);
+    });
     await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
