@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import { SequelizeOptions } from 'sequelize-typescript';
 import { ConnectOptions } from 'mongoose';
 
-dotenv.config({ path: 'src/.env' });
+dotenv.config({ path: '.env' });
 
 // MariaDB
 export const mariaDBConfig: SequelizeOptions = {

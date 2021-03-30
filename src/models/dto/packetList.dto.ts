@@ -1,6 +1,20 @@
 import { IsBoolean, IsDate, IsNumber, IsString, ValidateNested } from "class-validator";
 import { SPU } from "../schemas/SPU.schema";
 
+class PacketInfo {
+    @IsNumber()
+    readonly total: number;
+
+    @IsNumber()
+    readonly unread: number;
+
+    @IsNumber()
+    readonly error: number;
+
+    @IsNumber()
+    readonly today: number;
+}
+
 class PacketList {
     @IsString()
     readonly packet_id: string;
@@ -28,12 +42,9 @@ class PacketList {
 }
 
 export class PacketListDto {
-    @IsNumber()
-    readonly total_filtered_count: number;
-
-    @IsNumber()
-    readonly total_not_read_count: number;
+    @ValidateNested()
+    readonly info: PacketInfo;
 
     @ValidateNested()
-    readonly packet_list: PacketList[];
+    readonly list: PacketList[];
 }
