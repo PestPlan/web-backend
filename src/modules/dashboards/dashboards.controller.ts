@@ -14,4 +14,9 @@ export class DashboardsController {
     getDevicesByRegion(@Query('access_token') accessToken: string): Promise<object> {
         return this.dashboardsService.getDevicesByRegion(accessToken);
     }
+
+    @Get('/devices/status')
+    getDeviceStatus(@Query('access_token') accessToken: string) {
+        return this.dashboardsService.getDeviceStatus(accessToken);
+    }
 }

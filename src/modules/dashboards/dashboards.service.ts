@@ -86,4 +86,34 @@ export class DashboardsService {
             .forEach((region) => (devicesByRegion[region] = devicesByRegion[region] ? devicesByRegion[region] + 1 : 1));
         return devicesByRegion;
     }
+
+    async getDeviceStatus(accessToken: string) {
+        const user = await this.homeService.getUserByToken(accessToken);
+
+        const devices = await this.deviceRepository.findAll({
+            raw: true,
+            attributes: ['is_replacement', 'is_error'],
+            where: {
+                user_id: user.id,
+            },
+        });
+
+        const deviceStatus = {
+            normal: 0,
+            replacement: 0,
+            error: 0,
+        };
+
+        devices.filter((device) => {
+            if (device.is_replacement) {
+                deviceStatus.replacement++;
+            } else if (device.is_error) {
+                deviceStatus.error++;
+            } else {
+                deviceStatus.normal++;
+            }
+        });
+
+        return deviceStatus;
+    }
 }
