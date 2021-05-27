@@ -33,6 +33,25 @@ export class DevicesService {
         });
     }
 
+    async getDeviceInfos(accessToken: string) {
+        const user = await this.homeService.getUserByToken(accessToken);
+
+        const devices = await this.deviceRepository.findAll({
+            raw: true,
+            attributes: ['trap_id', 'is_error'],
+            where: {
+                user_id: user.id,
+            },
+        });
+
+        return {
+            total: devices.length,
+            pest: devices.filter((device) => device.trap_id[0] === '0').length,
+            mouse: devices.filter((device) => device.trap_id[0] === '1').length,
+            error: devices.filter((device) => device.is_error === true).length,
+        };
+    }
+
     /**
      * getDeviceDetails - 기기의 세부 정보를 리턴한다.
      */
