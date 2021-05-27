@@ -7,9 +7,10 @@ import { HomeModule } from './modules/home/home.module';
 import { LoginModule } from './modules/login/login.module';
 import { PacketsModule } from './modules/packets/packets.module';
 import { DashboardsModule } from './modules/dashboards/dashboards.module';
+import { NoticesModule } from './modules/notices/notices.module';
 
 @Module({
-    imports: [AuthModule, HomeModule, LoginModule, PacketsModule, DevicesModule, DashboardsModule],
+    imports: [AuthModule, HomeModule, LoginModule, PacketsModule, DevicesModule, DashboardsModule, NoticesModule],
     controllers: [AppController],
     providers: [AppService],
 })
