@@ -5,9 +5,14 @@ import { DashboardsService } from './dashboards.service';
 export class DashboardsController {
     constructor(private readonly dashboardsService: DashboardsService) {}
 
-    @Get('/records')
-    getRecords(@Query('access_token') accessToken: string) {
-        return this.dashboardsService.getRecords(accessToken);
+    @Get('/captures/pest')
+    getPestCaptures(@Query('access_token') accessToken: string) {
+        return this.dashboardsService.getPestCaptures(accessToken);
+    }
+
+    @Get('/captures/mouse')
+    getMouseCaptures(@Query('access_token') accessToken: string) {
+        return this.dashboardsService.getMouseCaptures(accessToken);
     }
 
     @Get('/devices')

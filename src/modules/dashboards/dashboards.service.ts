@@ -8,27 +8,46 @@ import { HomeService } from '../home/home.service';
 export class DashboardsService {
     constructor(@Inject('DeviceRepository') private deviceRepository: typeof Device, @Inject('Packet') private packetModel: Model<Packet>, private homeService: HomeService) {}
 
-    getRecordsByTrapType(packets: Packet[], isPest: boolean, start_month: number, end_month: number): object {
-        const RecordsByItem = {};
-        for (let time = start_month; time <= end_month; ) {
-            RecordsByItem[time] = 0;
-
-            time += 1;
-            if (time % 100 === 13) {
-                time += 100;
-                time -= 12;
-            }
-        }
-
-        packets
-            .filter((packet) => (isPest ? packet.SPU.MPU.trapIdType < '16' : packet.SPU.MPU.trapIdType >= '16'))
-            .map((packet) => packet.SPU.MPU.time.slice(0, 4))
-            .forEach((time) => (RecordsByItem[time] = RecordsByItem[time] + 1));
-
-        return RecordsByItem;
+    hexString2Int(str: string): number {
+        const hexStr = '0x' + str;
+        return parseInt(hexStr);
     }
 
-    async getRecords(accessToken: string) {
+    getLastYearRange(): { start_month: number; end_month: number } {
+        const now = new Date();
+        const year = now.getFullYear() % 100;
+        const month = now.getMonth() + 1;
+        const end_month = year * 100 + month;
+        const start_month = (year - 1) * 100 + month + 1;
+        return { start_month, end_month };
+    }
+
+    initializeCaptures(start_month: number, end_month: number): object {
+        const captures = {};
+        for (let time = start_month; time <= end_month; time++) {
+            if (time % 100 === 13) time = time + 100 - 12;
+            captures[time] = 0;
+        }
+        return captures;
+    }
+
+    async getPestCaptures(accessToken: string): Promise<object> {
+        const { start_month, end_month } = this.getLastYearRange();
+        let captures = this.initializeCaptures(start_month, end_month);
+        const packets = await this.getLastYearPackets(accessToken, start_month, end_month);
+        packets.filter((packet) => this.hexString2Int(packet.SPU.MPU.trapIdType) < 16).forEach((packet) => (captures[packet.SPU.MPU.time.slice(0, 4)] += Number(packet.SPU.MPU.pest.capture)));
+        return { pest: captures };
+    }
+
+    async getMouseCaptures(accessToken: string): Promise<object> {
+        const { start_month, end_month } = this.getLastYearRange();
+        let captures = this.initializeCaptures(start_month, end_month);
+        const packets = await this.getLastYearPackets(accessToken, start_month, end_month);
+        packets.filter((packet) => this.hexString2Int(packet.SPU.MPU.trapIdType) >= 16).forEach((packet) => (captures[packet.SPU.MPU.time.slice(0, 4)] += Number(packet.SPU.MPU.mouseWarning.capture)));
+        return { mouse: captures };
+    }
+
+    async getLastYearPackets(accessToken: string, start_month: number, end_month: number): Promise<Packet[]> {
         const user = await this.homeService.getUserByToken(accessToken);
 
         const devices = await this.deviceRepository.findAll({
@@ -38,20 +57,14 @@ export class DashboardsService {
                 user_id: user.id,
             },
         });
-        const trapIds = devices.map((device) => parseInt(device.trap_id));
-
-        const now = new Date();
-        const year = now.getFullYear() % 100;
-        const month = now.getMonth() + 1;
-        const this_month = year * 100 + month;
-        const start_month = (year - 1) * 100 + month + 1;
+        const trapIds = devices.map((device) => device.trap_id);
 
         const packets = await this.packetModel.find(
             {
                 'SPU.MPU.trapId': trapIds,
                 'SPU.MPU.time': {
                     $gte: start_month.toString(),
-                    $lte: this_month.toString(),
+                    $lte: end_month.toString(),
                 },
                 'SPU.MPU.item': '4',
             },
@@ -59,13 +72,12 @@ export class DashboardsService {
                 _id: 0,
                 'SPU.MPU.time': 1,
                 'SPU.MPU.trapIdType': 1,
+                'SPU.MPU.pest.capture': 1,
+                'SPU.MPU.mouseWarning.capture': 1,
             },
         );
 
-        const pest = this.getRecordsByTrapType(packets, true, start_month, this_month);
-        const mouse = this.getRecordsByTrapType(packets, false, start_month, this_month);
-
-        return { pest, mouse };
+        return packets;
     }
 
     async getDevicesByRegion(accessToken: string): Promise<object> {
