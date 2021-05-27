@@ -19,6 +19,11 @@ export class DevicesController {
         return this.devicesService.getDeviceList(accessToken, regions, locations, models, page, row);
     }
 
+    @Get('/infos')
+    getDeviceInfos(@Query('access_token') accessToken: string) {
+        return this.devicesService.getDeviceInfos(accessToken);
+    }
+
     @Get('/details/:id')
     getDeviceDetails(@Param('id') deviceId: string, @Query('page') page: number, @Query('row') row: number): Promise<DeviceDetailsDto> {
         return this.devicesService.getDeviceDetails(deviceId, page, row);
