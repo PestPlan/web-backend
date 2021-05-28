@@ -7,14 +7,13 @@ export class NoticesService {
     constructor(@Inject('DeviceRepository') private deviceRepository: typeof Device) {}
 
     async updateDeviceStatus(deviceData) {
-        console.log(deviceData);
         await this.deviceRepository.update(
             {
                 is_error: true,
             },
             {
                 where: {
-                    trap_id: deviceData.trap_id,
+                    trap_id: deviceData.trapId,
                 },
             },
         );
