@@ -29,7 +29,7 @@ export class NoticesService {
             },
             {
                 where: {
-                    trap_id: deviceData.trap_id,
+                    trap_id: deviceData.trapId,
                 },
             },
         );
