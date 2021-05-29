@@ -6,7 +6,36 @@ import { Device } from 'src/models/entities/device.entity';
 export class NoticesService {
     constructor(@Inject('DeviceRepository') private deviceRepository: typeof Device) {}
 
-    async updateDeviceStatus(deviceData) {
+    async updateDeviceReplacementStatus(deviceData) {
+        await this.deviceRepository.update(
+            {
+                is_replacement: true,
+            },
+            {
+                where: {
+                    trap_id: deviceData.trapId,
+                },
+            },
+        );
+
+        this.rollbackDeviceReplacementStatus(deviceData);
+    }
+
+    @Timeout(100000)
+    async rollbackDeviceReplacementStatus(deviceData) {
+        await this.deviceRepository.update(
+            {
+                is_replacement: false,
+            },
+            {
+                where: {
+                    trap_id: deviceData.trapId,
+                },
+            },
+        );
+    }
+
+    async updateDeviceErrorStatus(deviceData) {
         await this.deviceRepository.update(
             {
                 is_error: true,
@@ -18,11 +47,11 @@ export class NoticesService {
             },
         );
 
-        this.rollbackDeviceStatus(deviceData);
+        this.rollbackDeviceErrorStatus(deviceData);
     }
 
     @Timeout(100000)
-    async rollbackDeviceStatus(deviceData) {
+    async rollbackDeviceErrorStatus(deviceData) {
         await this.deviceRepository.update(
             {
                 is_error: false,
