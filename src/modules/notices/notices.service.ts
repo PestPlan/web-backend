@@ -18,20 +18,19 @@ export class NoticesService {
             },
         );
 
-        this.rollbackDeviceReplacementStatus(deviceData);
-    }
-
-    @Timeout(100000)
-    async rollbackDeviceReplacementStatus(deviceData) {
-        await this.deviceRepository.update(
-            {
-                is_replacement: false,
-            },
-            {
-                where: {
-                    trap_id: deviceData.trapId,
-                },
-            },
+        setTimeout(
+            async (deviceData) =>
+                await this.deviceRepository.update(
+                    {
+                        is_replacement: false,
+                    },
+                    {
+                        where: {
+                            trap_id: deviceData.trapId,
+                        },
+                    },
+                ),
+            100000,
         );
     }
 
@@ -47,20 +46,19 @@ export class NoticesService {
             },
         );
 
-        this.rollbackDeviceErrorStatus(deviceData);
-    }
-
-    @Timeout(100000)
-    async rollbackDeviceErrorStatus(deviceData) {
-        await this.deviceRepository.update(
-            {
-                is_error: false,
-            },
-            {
-                where: {
-                    trap_id: deviceData.trapId,
-                },
-            },
+        setTimeout(
+            async (deviceData) =>
+                await this.deviceRepository.update(
+                    {
+                        is_error: false,
+                    },
+                    {
+                        where: {
+                            trap_id: deviceData.trapId,
+                        },
+                    },
+                ),
+            100000,
         );
     }
 }
