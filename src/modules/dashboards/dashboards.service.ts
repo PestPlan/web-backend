@@ -17,7 +17,7 @@ export class DashboardsService {
         const now = new Date();
         const year = now.getFullYear() % 100;
         const month = now.getMonth() + 1;
-        const end_month = year * 100 + month;
+        const end_month = year * 100 + month + 1;
         const start_month = (year - 1) * 100 + month + 1;
         return { start_month, end_month };
     }
