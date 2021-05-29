@@ -24,7 +24,7 @@ export class DashboardsService {
 
     initializeCaptures(start_month: number, end_month: number): object {
         const captures = {};
-        for (let time = start_month; time <= end_month; time++) {
+        for (let time = start_month; time < end_month; time++) {
             if (time % 100 === 13) time = time + 100 - 12;
             captures[time] = 0;
         }
