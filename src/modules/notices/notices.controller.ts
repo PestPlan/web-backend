@@ -7,9 +7,9 @@ export class NoticesController {
 
     @Post()
     updateDeviceStatus(@Body() deviceData) {
-        if (deviceData.trapId == 1) {
+        if (deviceData.cmd === '1') {
             this.noticesService.updateDeviceReplacementStatus(deviceData);
-        } else if (deviceData.trapId == 2) {
+        } else if (deviceData.cmd === '2') {
             this.noticesService.updateDeviceErrorStatus(deviceData);
         }
     }
