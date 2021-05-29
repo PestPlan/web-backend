@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Timeout } from '@nestjs/schedule';
-import { Device } from 'src/models/entities/device.entity';
+import { Device } from '../../models/entities/device.entity';
 
 @Injectable()
 export class NoticesService {
