@@ -20,15 +20,18 @@ export class PacketsService {
         const filteredTrapIds = filteredDeviceList.map((device) => device.trap_id);
 
         const now = new Date();
-        const today = this.makeTwoDigits(now.getFullYear() % 100) + this.makeTwoDigits(now.getMonth() + 1) + this.makeTwoDigits(now.getDate());
-        const todayPacketList = await this.packetModel.find({
-            'SPU.MPU.time': { $regex: `^${today}` },
+        const todayRegex = this.makeTwoDigits(now.getFullYear() % 100) + this.makeTwoDigits(now.getMonth() + 1) + this.makeTwoDigits(now.getDate());
+        const today = await this.packetModel.countDocuments({
+            'SPU.MPU.time': { $regex: `^${todayRegex}` },
         });
+
+        const cycle = await this.packetModel.countDocuments({ 'SPU.MPU.item': '5' });
+        const capture = await this.packetModel.countDocuments({ 'SPU.MPU.item': '4' });
+        const error = await this.packetModel.countDocuments({ 'SPU.MPU.item': '6' });
 
         const timeQuery = {};
         if (start.toString() !== 'Invalid Date') timeQuery['$gte'] = start;
         if (end.toString() !== 'Invalid Date') timeQuery['$lte'] = end;
-
         const filteredPacketList = await this.packetModel.find(
             {
                 'SPU.MPU.trapId': filteredTrapIds,
@@ -41,20 +44,15 @@ export class PacketsService {
             },
             {
                 sort: { 'SPU.MPU.time': -1 },
+                skip: row * (page - 1),
+                limit: row,
             },
         );
         // ...(types && { type: { $in: types } }),
 
-        const limitedPacketList = filteredPacketList.slice(row * (page - 1), row * page);
-
         return {
-            info: {
-                total: filteredPacketList.length,
-                unread: filteredPacketList.filter((packet) => !packet.is_read).length,
-                error: filteredPacketList.filter((packet) => packet.SPU.MPU.item === '4').length,
-                today: todayPacketList.length,
-            },
-            list: limitedPacketList.map((packet) => {
+            info: { today, cycle, capture, error },
+            list: filteredPacketList.map((packet) => {
                 const {
                     SPU: { MPU },
                 } = packet;

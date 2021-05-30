@@ -1,18 +1,18 @@
-import { IsBoolean, IsDate, IsNumber, IsString, ValidateNested } from "class-validator";
-import { SPU } from "../schemas/SPU.schema";
+import { IsBoolean, IsDate, IsNumber, IsString, ValidateNested } from 'class-validator';
+import { SPU } from '../schemas/SPU.schema';
 
 class PacketInfo {
     @IsNumber()
-    readonly total: number;
+    readonly today: number;
 
     @IsNumber()
-    readonly unread: number;
+    readonly cycle: number;
+
+    @IsNumber()
+    readonly capture: number;
 
     @IsNumber()
     readonly error: number;
-
-    @IsNumber()
-    readonly today: number;
 }
 
 class PacketList {
