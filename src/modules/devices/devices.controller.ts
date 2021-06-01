@@ -7,6 +7,11 @@ import { DeviceListDto } from '../../models/dto/deviceList.dto';
 export class DevicesController {
     constructor(private readonly devicesService: DevicesService) {}
 
+    @Get('/count')
+    getDeviceCount(@Query('access_token') accessToken: string, @Query('regions') regions: string[], @Query('locations') locations: string[], @Query('models') models: string[]) {
+        return this.devicesService.getDeviceCount(accessToken, regions, locations, models);
+    }
+
     @Get()
     getDeviceList(
         @Query('access_token') accessToken: string,

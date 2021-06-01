@@ -6,6 +6,19 @@ import { PacketListDto } from '../../models/dto/packetList.dto';
 export class PacketsController {
     constructor(private readonly packetsService: PacketsService) {}
 
+    @Get('/count')
+    getPacketCount(
+        @Query('access_token') accessToken: string,
+        @Query('start') start: Date,
+        @Query('end') end: Date,
+        @Query('regions') regions: string[],
+        @Query('locations') locations: string[],
+        @Query('models') models: string[],
+        @Query('types') types: string[],
+    ) {
+        return this.packetsService.getPacketCount(accessToken, start, end, regions, locations, models, types);
+    }
+
     @Get()
     getPacketList(
         @Query('access_token') accessToken: string,

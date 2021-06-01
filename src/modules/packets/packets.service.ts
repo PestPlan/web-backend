@@ -12,6 +12,32 @@ export class PacketsService {
         return ('0' + number).slice(-2);
     }
 
+    async getPacketCount(accessToken: string, start: Date, end: Date, regions: string[], locations: string[], models: string[], types: string[]) {
+        const filteredDeviceList = await this.devicesService.getDeviceList(accessToken, regions, locations, models);
+        const filteredTrapIds = filteredDeviceList.map((device) => device.trap_id);
+
+        const timeQuery = {};
+        if (start.toString() !== 'Invalid Date') {
+            timeQuery['$gte'] = this.makeTwoDigits(start.getFullYear() % 100) + this.makeTwoDigits(start.getMonth() + 1) + this.makeTwoDigits(start.getDate()) + '0000';
+        }
+        if (end.toString() !== 'Invalid Date') {
+            timeQuery['$lte'] = this.makeTwoDigits(end.getFullYear() % 100) + this.makeTwoDigits(end.getMonth() + 1) + this.makeTwoDigits(end.getDate()) + '9999';
+        }
+
+        const items = [];
+        if (types === undefined || types.includes('주기')) items.push('5');
+        if (types === undefined || types.includes('경보')) items.push('4');
+        if (types === undefined || types.includes('에러')) items.push('6');
+
+        const count = await this.packetModel.countDocuments({
+            'SPU.MPU.trapId': filteredTrapIds,
+            'SPU.MPU.time': timeQuery,
+            'SPU.MPU.item': items,
+        });
+
+        return { count };
+    }
+
     /**
      * getPacketList - 사용자의 알람 정보 중 page에 해당하는 부분을 리턴한다.
      */
@@ -30,12 +56,23 @@ export class PacketsService {
         const error = await this.packetModel.countDocuments({ 'SPU.MPU.item': '6' });
 
         const timeQuery = {};
-        if (start.toString() !== 'Invalid Date') timeQuery['$gte'] = start;
-        if (end.toString() !== 'Invalid Date') timeQuery['$lte'] = end;
+        if (start.toString() !== 'Invalid Date') {
+            timeQuery['$gte'] = this.makeTwoDigits(start.getFullYear() % 100) + this.makeTwoDigits(start.getMonth() + 1) + this.makeTwoDigits(start.getDate()) + '0000';
+        }
+        if (end.toString() !== 'Invalid Date') {
+            timeQuery['$lte'] = this.makeTwoDigits(end.getFullYear() % 100) + this.makeTwoDigits(end.getMonth() + 1) + this.makeTwoDigits(end.getDate()) + '9999';
+        }
+
+        const items = [];
+        if (types === undefined || types.includes('주기')) items.push('5');
+        if (types === undefined || types.includes('경보')) items.push('4');
+        if (types === undefined || types.includes('에러')) items.push('6');
+
         const filteredPacketList = await this.packetModel.find(
             {
                 'SPU.MPU.trapId': filteredTrapIds,
                 'SPU.MPU.time': timeQuery,
+                'SPU.MPU.item': items,
             },
             {
                 _id: 1,
@@ -48,7 +85,6 @@ export class PacketsService {
                 limit: row,
             },
         );
-        // ...(types && { type: { $in: types } }),
 
         return {
             info: { today, cycle, capture, error },
@@ -64,7 +100,7 @@ export class PacketsService {
                     region: device.region,
                     location: device.location,
                     model_name: device.model_name,
-                    type: MPU.dataType,
+                    type: MPU.item,
                     is_read: packet.is_read,
                     packet: packet.SPU,
                 };

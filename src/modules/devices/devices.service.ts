@@ -10,6 +10,21 @@ import { Packet } from '../../models/schemas/packet.schema';
 export class DevicesService {
     constructor(@Inject('DeviceRepository') private deviceRepository: typeof Device, @Inject('Packet') private packetModel: Model<Packet>, private homeService: HomeService) {}
 
+    async getDeviceCount(accessToken: string, regions: string[], locations: string[], models: string[]) {
+        const user = await this.homeService.getUserByToken(accessToken);
+
+        const count = await this.deviceRepository.count({
+            where: {
+                user_id: user.id,
+                ...(regions && { region: regions }),
+                ...(locations && { location: locations }),
+                ...(models && { model_name: models }),
+            },
+        });
+
+        return { count };
+    }
+
     /**
      * getDeviceList - 사용자의 기기 정보 중 page에 해당하는 부분을 리턴한다.
      */
