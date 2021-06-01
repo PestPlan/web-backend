@@ -57,10 +57,10 @@ export class PacketsService {
 
         const timeQuery = {};
         if (start.toString() !== 'Invalid Date') {
-            timeQuery['$gte'] = this.makeTwoDigits(start.getFullYear() % 100) + this.makeTwoDigits(start.getMonth() + 1) + this.makeTwoDigits(start.getDate()) + '0000';
+            timeQuery['$gte'] = this.makeTwoDigits(start.getFullYear() % 100) + this.makeTwoDigits(start.getMonth() + 1) + start.toString().slice(8, 10) + '0000';
         }
         if (end.toString() !== 'Invalid Date') {
-            timeQuery['$lte'] = this.makeTwoDigits(end.getFullYear() % 100) + this.makeTwoDigits(end.getMonth() + 1) + this.makeTwoDigits(end.getDate()) + '9999';
+            timeQuery['$lte'] = this.makeTwoDigits(end.getFullYear() % 100) + this.makeTwoDigits(end.getMonth() + 1) + end.toString().slice(8, 10) + '9999';
         }
 
         const items = [];
