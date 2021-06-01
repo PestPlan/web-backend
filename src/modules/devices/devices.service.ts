@@ -48,7 +48,7 @@ export class DevicesService {
             total: devices.length,
             pest: devices.filter((device) => device.trap_id[0] === '0').length,
             mouse: devices.filter((device) => device.trap_id[0] === '1').length,
-            error: devices.filter((device) => device.is_error === true).length,
+            error: devices.filter((device) => Boolean(device.is_error) === true).length,
         };
     }
 
